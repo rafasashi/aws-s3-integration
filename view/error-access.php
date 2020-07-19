@@ -1,4 +1,4 @@
-<div class="error inline as3cf-can-write-error as3cf-error" style="<?php echo ( $can_write ) ? 'display: none;' : ''; // xss ok ?>">
+<div class="error inline as3i-can-write-error as3i-error" style="<?php echo ( $can_write ) ? 'display: none;' : ''; // xss ok ?>">
 	<p>
 		<strong>
 			<?php _e( 'Access Denied to Bucket', 'aws-s3-integration' ); ?>

@@ -1,5 +1,5 @@
 <?php
-/* @var \Amazon_S3_And_CloudFront|\Amazon_S3_And_CloudFront_Pro $this */
+/* @var \AWS_s3_Integration|\AWS_s3_Integration_Pro $this */
 /* @var array $addon */
 /* @var string $slug */
 $activated = ! empty( $addon['active'] );
@@ -9,7 +9,7 @@ $links     = ! empty( $addon['links'] ) ? $addon['links'] : array();
 $addon_details_link = function() use ( $addon, $slug ) {
 	$url   = $addon['url'];
 	$title = __( 'More Details &raquo;', 'aws-s3-integration' );
-	$class = 'as3cf-addon-details';
+	$class = 'as3i-addon-details';
 
 	if ( ! empty( $addon['free'] ) ) {
 		$url   = self_admin_url( 'plugin-install.php?tab=plugin-information&amp;plugin=' . $slug . '&amp;TB_iframe=true&amp;width=600&amp;height=800' );
@@ -29,13 +29,13 @@ $install_url = function() use ( $slug ) {
 	return wp_nonce_url( self_admin_url( 'update.php?action=install-plugin&plugin=' . $slug ), 'install-plugin_' . $slug );
 };
 ?>
-<div class="as3cf-addon <?php echo $slug; ?>">
+<div class="as3i-addon <?php echo $slug; ?>">
 	<?php if ( isset( $addon['icon'] ) ) : ?>
-		<img class="as3cf-addon-icon" src="<?php echo $this->get_addon_icon_url( $slug ) ?>" width="100" height="100">
+		<img class="as3i-addon-icon" src="<?php echo $this->get_addon_icon_url( $slug ) ?>" width="100" height="100">
 	<?php endif ?>
 
-	<div class="as3cf-addon-info">
-		<div class="as3cf-addon-links">
+	<div class="as3i-addon-info">
+		<div class="as3i-addon-links">
 			<?php if ( $installed && $activated ) : ?>
 				<span class="installed activated"><?php echo esc_html_x( 'Installed & Activated', 'Plugin already installed and activated', 'aws-s3-integration' ) ?></span>
 			<?php elseif ( $installed ) : ?>
@@ -50,10 +50,10 @@ $install_url = function() use ( $slug ) {
 			<?php endforeach ?>
 		</div>
 
-		<h1 class="as3cf-addon-title"><?php echo $addon['title'] ?></h1>
+		<h1 class="as3i-addon-title"><?php echo $addon['title'] ?></h1>
 
 		<?php if ( isset( $addon['sub'] ) ) : ?>
-			<div class="as3cf-addon-description">
+			<div class="as3i-addon-description">
 				<?php echo esc_html( $addon['sub'] ) . ' ' . $addon_details_link() ?>
 			</div>
 		<?php endif ?>

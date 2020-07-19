@@ -4,7 +4,7 @@
  *
  * @package     aws-s3-integration
  * @subpackage  Classes/Error
- * @copyright   Copyright (c) 2015, Delicious Brains
+ * @copyright   Copyright (c), Recuweb
  * @license     http://opensource.org/licenses/gpl-2.0.php GNU Public License
  * @since       0.9.12
  */
@@ -15,13 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * AS3CF_Error Class
+ * as3i_Error Class
  *
  * This class handles error logging
  *
  * @since 0.9.12
  */
-class AS3CF_Error {
+class as3i_Error {
 
 	/**
 	 * Wrapper for error logging a message with plugin prefix
@@ -30,7 +30,7 @@ class AS3CF_Error {
 	 * @param string $plugin_prefix
 	 */
 	public static function log( $message, $plugin_prefix = '' ) {
-		$prefix = 'AS3CF';
+		$prefix = 'as3i';
 		if ( '' !== $plugin_prefix ) {
 			$prefix .= '_' . $plugin_prefix;
 		}

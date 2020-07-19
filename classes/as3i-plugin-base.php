@@ -1,8 +1,8 @@
 <?php
 
-abstract class AS3CF_Plugin_Base {
+abstract class as3i_Plugin_Base {
 
-	const DBRAINS_URL = 'https://deliciousbrains.com';
+	const REW_URL = 'https://wordpress.recuweb.com';
 
 	const SETTINGS_KEY = '';
 
@@ -35,7 +35,7 @@ abstract class AS3CF_Plugin_Base {
 		$this->plugin_file_path = $plugin_file_path;
 		$this->plugin_dir_path  = rtrim( plugin_dir_path( $plugin_file_path ), '/' );
 		$this->plugin_basename  = plugin_basename( $plugin_file_path );
-		$this->plugin_pagenow   = is_multisite() ? 'settings.php' : 'options-general.php';
+		$this->plugin_pagenow   = 'admin.php';
 
 		if ( $this->plugin_slug && isset( $GLOBALS['aws_meta'][ $this->plugin_slug ]['version'] ) ) {
 			$this->plugin_version = $GLOBALS['aws_meta'][ $this->plugin_slug ]['version'];
@@ -93,7 +93,8 @@ abstract class AS3CF_Plugin_Base {
 	 * @return string
 	 */
 	public function get_plugin_sdks_dir_path() {
-		return $this->get_plugin_dir_path() . '/vendor';
+		
+		return WP_PLUGIN_DIR . '/amazon-cloud-services/sdk/v3/vendor';
 	}
 
 	/**
@@ -145,7 +146,7 @@ abstract class AS3CF_Plugin_Base {
 	 * @return string|false Constant name if defined, otherwise false
 	 */
 	public static function settings_constant() {
-		return AS3CF_Utils::get_first_defined_constant( static::$settings_constants );
+		return as3i_Utils::get_first_defined_constant( static::$settings_constants );
 	}
 
 	/**
@@ -189,7 +190,7 @@ abstract class AS3CF_Plugin_Base {
 
 			// Normalize the defined settings before saving, so we can detect when a real change happens.
 			ksort( $this->defined_settings );
-			update_site_option( 'as3cf_constant_' . static::settings_constant(), array_diff_key( $this->defined_settings, array_flip( $this->get_monitored_settings_blacklist() ) ) );
+			update_site_option( 'as3i_constant_' . static::settings_constant(), array_diff_key( $this->defined_settings, array_flip( $this->get_monitored_settings_blacklist() ) ) );
 		}
 
 		return $this->defined_settings;
@@ -199,15 +200,15 @@ abstract class AS3CF_Plugin_Base {
 	 * Subscribe to changes of the site option used to store the constant-defined settings.
 	 */
 	protected function listen_for_settings_constant_changes() {
-		if ( false !== static::settings_constant() && ! has_action( 'update_site_option_' . 'as3cf_constant_' . static::settings_constant(), array(
+		if ( false !== static::settings_constant() && ! has_action( 'update_site_option_' . 'as3i_constant_' . static::settings_constant(), array(
 				$this,
 				'settings_constant_changed',
 			) ) ) {
-			add_action( 'add_site_option_' . 'as3cf_constant_' . static::settings_constant(), array(
+			add_action( 'add_site_option_' . 'as3i_constant_' . static::settings_constant(), array(
 				$this,
 				'settings_constant_added',
 			), 10, 3 );
-			add_action( 'update_site_option_' . 'as3cf_constant_' . static::settings_constant(), array(
+			add_action( 'update_site_option_' . 'as3i_constant_' . static::settings_constant(), array(
 				$this,
 				'settings_constant_changed',
 			), 10, 4 );
@@ -253,7 +254,7 @@ abstract class AS3CF_Plugin_Base {
 				 * @param mixed  $old_value
 				 * @param string $setting
 				 */
-				do_action( 'as3cf_constant_' . static::settings_constant() . '_changed_' . $setting, $new_value, $old_value, $setting );
+				do_action( 'as3i_constant_' . static::settings_constant() . '_changed_' . $setting, $new_value, $old_value, $setting );
 
 				/**
 				 * Generic hook for setting change.
@@ -262,7 +263,7 @@ abstract class AS3CF_Plugin_Base {
 				 * @param mixed  $old_value
 				 * @param string $setting
 				 */
-				do_action( 'as3cf_constant_' . static::settings_constant() . '_changed', $new_value, $old_value, $setting );
+				do_action( 'as3i_constant_' . static::settings_constant() . '_changed', $new_value, $old_value, $setting );
 			}
 		}
 	}
@@ -364,7 +365,7 @@ abstract class AS3CF_Plugin_Base {
 			$setting = $default;
 		}
 
-		return apply_filters( 'as3cf_get_setting', $setting, $key );
+		return apply_filters( 'as3i_get_setting', $setting, $key );
 	}
 
 	/**
@@ -428,9 +429,24 @@ abstract class AS3CF_Plugin_Base {
 	 * @param string $view View filename without the extension
 	 * @param array  $args Arguments to pass to the view
 	 */
-	function render_view( $view, $args = array() ) {
+	function render_view( $view, $args = array(),$echo = false ) {
+		
 		extract( $args );
-		include $this->plugin_dir_path . '/view/' . $view . '.php';
+		
+		if($echo){
+			
+			ob_start();
+		}
+		
+			include $this->plugin_dir_path . '/view/' . $view . '.php';
+		
+		if($echo){
+			
+			$content =  ob_get_contents();
+			ob_end_clean();
+			
+			return $content;
+		}
 	}
 
 	/**
@@ -617,13 +633,13 @@ abstract class AS3CF_Plugin_Base {
 	 *
 	 * @return string
 	 */
-	public function dbrains_url( $path, $args = array(), $hash = '' ) {
+	public function rew_url( $path, $args = array(), $hash = '' ) {
 		$args = wp_parse_args( $args, array(
 			'utm_medium' => 'insideplugin',
 			'utm_source' => $this->get_utm_source(),
 		) );
 		$args = array_map( 'urlencode', $args );
-		$url  = trailingslashit( self::DBRAINS_URL ) . ltrim( $path, '/' );
+		$url  = trailingslashit( self::REW_URL ) . ltrim( $path, '/' );
 		$url  = add_query_arg( $args, $url );
 
 		if ( $hash ) {
@@ -651,6 +667,6 @@ abstract class AS3CF_Plugin_Base {
 	 * @return string
 	 */
 	public function get_my_account_url( $args = array(), $hash = '' ) {
-		return $this->dbrains_url( '/my-account/', $args, $hash );
+		return $this->rew_url( '/my-account/', $args, $hash );
 	}
 }

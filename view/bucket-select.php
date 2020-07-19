@@ -1,5 +1,5 @@
 <?php
-/* @var \Amazon_S3_And_CloudFront|\Amazon_S3_And_CloudFront_Pro $this */
+/* @var \AWS_s3_Integration|\AWS_s3_Integration_Pro $this */
 $provider         = $this->get_provider();
 $provider_regions = $provider->get_regions();
 $region_required  = $provider->region_required();
@@ -24,7 +24,8 @@ $select_mode = $this->get_plugin_page_url( array_merge( $mode_args, array( 'buck
 $create_mode = $this->get_plugin_page_url( array_merge( $mode_args, array( 'bucket_mode' => 'create' ) ) );
 ?>
 
-<div class="as3cf-bucket-container <?php echo $prefix; ?>">
+<div style="clear:both;" class="as3i-bucket-container <?php echo $prefix; ?>">
+	
 	<?php
 	if ( ! $this->get_setting( 'bucket' ) || ( ! empty( $_GET['action'] ) && 'change-bucket' === $_GET['action'] ) || ! empty( $_GET['prev_action'] ) ) {
 		$back_args = $this->get_setting( 'bucket' ) ? array() : array( 'action' => 'change-provider' );
@@ -40,25 +41,18 @@ $create_mode = $this->get_plugin_page_url( array_merge( $mode_args, array( 'buck
 
 	if ( 'manual' === $bucket_mode ) {
 		?>
-		<div class="as3cf-bucket-manual">
-			<h3><?php _e( 'What bucket would you like to use?', 'aws-s3-integration' ); ?></h3>
+		<div class="as3i-bucket-manual">
+			
 			<table class="form-table">
-				<?php
-				$this->render_view( 'provider-setting',
-					array(
-						'prefix'   => $prefix,
-						'tr_class' => "{$prefix}-provider-setting",
-					)
-				);
-				?>
-				<?php if ( defined( 'AS3CF_REGION' ) || true === $region_required ) { ?>
+
+				<?php if ( defined( 'AWS_S3_REGION' ) || true === $region_required ) { ?>
 					<tr>
 						<td>
 							<?php _e( 'Region:', 'aws-s3-integration' ); ?>
 						</td>
 						<td>
 							<?php
-							if ( ! defined( 'AS3CF_REGION' ) && false === $this->get_defined_setting( 'region', false ) ) { ?>
+							if ( ! defined( 'AWS_S3_REGION' ) && false === $this->get_defined_setting( 'region', false ) ) { ?>
 								<select id="<?php echo $prefix; ?>-bucket-manual-region" class="bucket-manual-region" name="region_name">
 									<?php foreach ( $provider_regions as $value => $label ) {
 										$selected = ( $value === $selected_region ) ? ' selected="selected"' : '';
@@ -67,7 +61,7 @@ $create_mode = $this->get_plugin_page_url( array_merge( $mode_args, array( 'buck
 									<?php } ?>
 								</select>
 							<?php } else {
-								$region      = defined( 'AS3CF_REGION' ) ? AS3CF_REGION : $this->get_defined_setting( 'region' );
+								$region      = defined( 'AWS_S3_REGION' ) ? AWS_S3_REGION : $this->get_defined_setting( 'region' );
 								$region_name = isset( $provider_regions[ $region ] ) ? $provider_regions[ $region ] : $region;
 								printf( __( '%s (defined in wp-config.php)', 'aws-s3-integration' ), $region_name );
 							} ?>
@@ -79,31 +73,20 @@ $create_mode = $this->get_plugin_page_url( array_merge( $mode_args, array( 'buck
 						<?php _e( 'Bucket:', 'aws-s3-integration' ); ?>
 					</td>
 					<td>
-						<input type="text" id="<?php echo $prefix; ?>-bucket-manual-name" class="as3cf-bucket-name" name="bucket_name" placeholder="<?php _e( 'Existing bucket name', 'aws-s3-integration' ); ?>" value="<?php echo $selected_bucket; ?>">
-						<p class="as3cf-invalid-bucket-name"></p>
+						<input type="text" id="<?php echo $prefix; ?>-bucket-manual-name" class="as3i-bucket-name" name="bucket_name" placeholder="<?php _e( 'Existing bucket name', 'aws-s3-integration' ); ?>" value="<?php echo $selected_bucket; ?>">
+						<p class="as3i-invalid-bucket-name"></p>
 					</td>
 				</tr>
 			</table>
 			<p class="bucket-actions actions manual">
 				<button id="<?php echo $prefix; ?>-bucket-manual-save" type="submit" class="bucket-action-save button button-primary"><?php _e( 'Save Bucket Setting', 'aws-s3-integration' ); ?></button>
-				<span><a href="<?php echo $select_mode; ?>" id="<?php echo $prefix; ?>-bucket-action-browse" class="bucket-action-browse"><?php _e( 'Browse existing buckets', 'aws-s3-integration' ); ?></a></span>
 				<span><a href="<?php echo $create_mode; ?>" id="<?php echo $prefix; ?>-bucket-action-create" class="bucket-action-create"><?php _e( 'Create new bucket', 'aws-s3-integration' ); ?></a></span>
 			</p>
 		</div>
 	<?php } elseif ( 'select' === $bucket_mode ) { ?>
-		<div class="as3cf-bucket-select">
+		<div class="as3i-bucket-select">
 			<h3><?php _e( 'Select bucket', 'aws-s3-integration' ); ?></h3>
-			<table class="form-table">
-				<?php
-				$this->render_view( 'provider-setting',
-					array(
-						'prefix'   => $prefix,
-						'tr_class' => "{$prefix}-provider-setting",
-					)
-				);
-				?>
-			</table>
-			<?php if ( defined( 'AS3CF_REGION' ) || false !== $this->get_defined_setting( 'region', false ) || true === $region_required ) { ?>
+			<?php if ( defined( 'AWS_S3_REGION' ) || false !== $this->get_defined_setting( 'region', false ) || true === $region_required ) { ?>
 				<table class="form-table">
 					<tr>
 						<td>
@@ -111,7 +94,7 @@ $create_mode = $this->get_plugin_page_url( array_merge( $mode_args, array( 'buck
 						</td>
 						<td>
 							<?php
-							if ( ! defined( 'AS3CF_REGION' ) && false === $this->get_defined_setting( 'region', false ) ) { ?>
+							if ( ! defined( 'AWS_S3_REGION' ) && false === $this->get_defined_setting( 'region', false ) ) { ?>
 								<select id="<?php echo $prefix; ?>-bucket-select-region" class="bucket-select-region" name="region_name">
 									<?php foreach ( $provider_regions as $value => $label ) {
 										$selected = ( $value === $selected_region ) ? ' selected="selected"' : '';
@@ -120,7 +103,7 @@ $create_mode = $this->get_plugin_page_url( array_merge( $mode_args, array( 'buck
 									<?php } ?>
 								</select>
 							<?php } else {
-								$region      = defined( 'AS3CF_REGION' ) ? AS3CF_REGION : $this->get_defined_setting( 'region' );
+								$region      = defined( 'AWS_S3_REGION' ) ? AWS_S3_REGION : $this->get_defined_setting( 'region' );
 								$region_name = isset( $provider_regions[ $region ] ) ? $provider_regions[ $region ] : $region;
 								printf( __( '%s (defined in wp-config.php)', 'aws-s3-integration' ), $region_name );
 							} ?>
@@ -131,12 +114,12 @@ $create_mode = $this->get_plugin_page_url( array_merge( $mode_args, array( 'buck
 							<?php _e( 'Bucket:', 'aws-s3-integration' ); ?>
 						</td>
 						<td>
-							<ul class="as3cf-bucket-list" data-working="<?php _e( 'Loading...', 'aws-s3-integration' ); ?>" data-nothing-found="<?php _e( 'Nothing found', 'aws-s3-integration' ); ?>"></ul>
+							<ul class="as3i-bucket-list" data-working="<?php _e( 'Loading...', 'aws-s3-integration' ); ?>" data-nothing-found="<?php _e( 'Nothing found', 'aws-s3-integration' ); ?>"></ul>
 						</td>
 					</tr>
 				</table>
 			<?php } else { ?>
-				<ul class="as3cf-bucket-list" data-working="<?php _e( 'Loading...', 'aws-s3-integration' ); ?>" data-nothing-found="<?php _e( 'Nothing found', 'aws-s3-integration' ); ?>"></ul>
+				<ul class="as3i-bucket-list" data-working="<?php _e( 'Loading...', 'aws-s3-integration' ); ?>" data-nothing-found="<?php _e( 'Nothing found', 'aws-s3-integration' ); ?>"></ul>
 			<?php } ?>
 			<input id="<?php echo $prefix; ?>-bucket-select-name" type="hidden" class="no-compare" name="bucket_name" value="<?php echo esc_attr( $selected_bucket ); ?>">
 			<p class="bucket-actions actions select">
@@ -147,24 +130,16 @@ $create_mode = $this->get_plugin_page_url( array_merge( $mode_args, array( 'buck
 			</p>
 		</div>
 	<?php } elseif ( 'create' === $bucket_mode ) { ?>
-		<div class="as3cf-bucket-create">
+		<div class="as3i-bucket-create">
 			<h3><?php _e( 'Create new bucket', 'aws-s3-integration' ); ?></h3>
 			<table class="form-table">
-				<?php
-				$this->render_view( 'provider-setting',
-					array(
-						'prefix'   => $prefix,
-						'tr_class' => "{$prefix}-provider-setting",
-					)
-				);
-				?>
 				<tr>
 					<td>
 						<?php _e( 'Region:', 'aws-s3-integration' ); ?>
 					</td>
 					<td>
 						<?php
-						if ( ! defined( 'AS3CF_REGION' ) && false === $this->get_defined_setting( 'region', false ) ) {
+						if ( ! defined( 'AWS_S3_REGION' ) && false === $this->get_defined_setting( 'region', false ) ) {
 							$selected_region = $provider->is_region_valid( $selected_region ) ? $selected_region : $provider->get_default_region();
 							?>
 							<select id="<?php echo $prefix; ?>-bucket-create-region" class="bucket-create-region" name="region_name">
@@ -175,7 +150,7 @@ $create_mode = $this->get_plugin_page_url( array_merge( $mode_args, array( 'buck
 								<?php } ?>
 							</select>
 						<?php } else {
-							$region      = defined( 'AS3CF_REGION' ) ? AS3CF_REGION : $this->get_defined_setting( 'region' );
+							$region      = defined( 'AWS_S3_REGION' ) ? AWS_S3_REGION : $this->get_defined_setting( 'region' );
 							$region_name = isset( $provider_regions[ $region ] ) ? $provider_regions[ $region ] : $region;
 							printf( __( '%s (defined in wp-config.php)', 'aws-s3-integration' ), $region_name );
 						} ?>
@@ -186,8 +161,8 @@ $create_mode = $this->get_plugin_page_url( array_merge( $mode_args, array( 'buck
 						<?php _e( 'Bucket:', 'aws-s3-integration' ); ?>
 					</td>
 					<td>
-						<input type="text" id="<?php echo $prefix; ?>-create-bucket-name" class="as3cf-bucket-name" name="bucket_name" placeholder="<?php _e( 'New bucket name', 'aws-s3-integration' ); ?>">
-						<p class="as3cf-invalid-bucket-name"></p>
+						<input type="text" id="<?php echo $prefix; ?>-create-bucket-name" class="as3i-bucket-name" name="bucket_name" placeholder="<?php _e( 'New bucket name', 'aws-s3-integration' ); ?>">
+						<p class="as3i-invalid-bucket-name"></p>
 					</td>
 				</tr>
 			</table>

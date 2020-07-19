@@ -1,14 +1,14 @@
 <?php
 
-namespace DeliciousBrains\WP_Offload_Media\Providers;
+namespace Recuweb\AWS_S3_Integration\Providers;
 
-use AS3CF_Utils;
-use DeliciousBrains\WP_Offload_Media\Aws3\Aws\CommandPool;
-use DeliciousBrains\WP_Offload_Media\Aws3\Aws\ResultInterface;
-use DeliciousBrains\WP_Offload_Media\Aws3\Aws\S3\Exception\S3Exception;
-use DeliciousBrains\WP_Offload_Media\Aws3\Aws\S3\S3Client;
-use DeliciousBrains\WP_Offload_Media\Aws3\Aws\Sdk;
-use DeliciousBrains\WP_Offload_Media\Providers\Streams\AWS_S3_Stream_Wrapper;
+use as3i_Utils;
+use Aws\CommandPool;
+use Aws\ResultInterface;
+use Aws\S3\Exception\S3Exception;
+use Aws\S3\S3Client;
+use Aws\Sdk;
+use Recuweb\AWS_S3_Integration\Providers\Streams\AWS_S3_Stream_Wrapper;
 
 class AWS_Provider extends Provider {
 
@@ -74,7 +74,7 @@ class AWS_Provider extends Provider {
 	 * @var array
 	 */
 	protected static $access_key_id_constants = array(
-		'AS3CF_AWS_ACCESS_KEY_ID',
+		'as3i_AWS_ACCESS_KEY_ID',
 		'DBI_AWS_ACCESS_KEY_ID',
 		'AWS_ACCESS_KEY_ID',
 	);
@@ -83,7 +83,7 @@ class AWS_Provider extends Provider {
 	 * @var array
 	 */
 	protected static $secret_access_key_constants = array(
-		'AS3CF_AWS_SECRET_ACCESS_KEY',
+		'as3i_AWS_SECRET_ACCESS_KEY',
 		'DBI_AWS_SECRET_ACCESS_KEY',
 		'AWS_SECRET_ACCESS_KEY',
 	);
@@ -92,7 +92,7 @@ class AWS_Provider extends Provider {
 	 * @var array
 	 */
 	protected static $use_server_roles_constants = array(
-		'AS3CF_AWS_USE_EC2_IAM_ROLE',
+		'as3i_AWS_USE_EC2_IAM_ROLE',
 		'DBI_AWS_USE_EC2_IAM_ROLE',
 		'AWS_USE_EC2_IAM_ROLE',
 	);
@@ -150,15 +150,15 @@ class AWS_Provider extends Provider {
 	/**
 	 * AWS_Provider constructor.
 	 *
-	 * @param \AS3CF_Plugin_Base $as3cf
+	 * @param \as3i_Plugin_Base $as3i
 	 */
-	public function __construct( \AS3CF_Plugin_Base $as3cf ) {
-		parent::__construct( $as3cf );
+	public function __construct( \as3i_Plugin_Base $as3i ) {
+		parent::__construct( $as3i );
 
 		$this->disable_csm();
 
 		// Autoloader.
-		require_once $as3cf->get_plugin_sdks_dir_path() . '/Aws3/aws-autoloader.php';
+		require_once $as3i->get_plugin_sdks_dir_path() . '/autoload.php';
 	}
 
 	/**
@@ -167,7 +167,7 @@ class AWS_Provider extends Provider {
 	 * @see https://github.com/aws/aws-sdk-php/issues/1659
 	 */
 	private function disable_csm() {
-		if ( apply_filters( 'as3cf_disable_aws_csm', true ) ) {
+		if ( apply_filters( 'as3i_disable_aws_csm', true ) ) {
 			putenv( 'AWS_CSM_ENABLED=false' );
 		}
 	}
@@ -202,6 +202,7 @@ class AWS_Provider extends Provider {
 	 * @param array $args
 	 */
 	protected function init_client( Array $args ) {
+		
 		$this->aws_client = new Sdk( $args );
 	}
 
@@ -373,7 +374,7 @@ class AWS_Provider extends Provider {
 		$command = $this->s3_client->getCommand( 'GetObject', $commandArgs );
 
 		if ( empty( $expires ) || ! is_int( $expires ) || $expires < 0 ) {
-			return (string) \DeliciousBrains\WP_Offload_Media\Aws3\Aws\serialize( $command )->getUri();
+			return (string) \Aws\serialize( $command )->getUri();
 		} else {
 			return (string) $this->s3_client->createPresignedRequest( $command, $expires )->getUri();
 		}
@@ -449,17 +450,17 @@ class AWS_Provider extends Provider {
 
 		/* @var ResultInterface $result */
 		foreach ( $results as $attachment_id => $result ) {
-			if ( is_a( $result, 'DeliciousBrains\WP_Offload_Media\Aws3\Aws\ResultInterface' ) ) {
+			if ( is_a( $result, 'Aws\ResultInterface' ) ) {
 				$found_keys = $result->search( 'Contents[].Key' );
 
 				if ( ! empty( $found_keys ) ) {
 					$keys[ $attachment_id ] = $found_keys;
 				}
-			} elseif ( is_a( $result, 'DeliciousBrains\WP_Offload_Media\Aws3\Aws\S3\Exception\S3Exception' ) ) {
+			} elseif ( is_a( $result, 'Aws\S3\Exception\S3Exception' ) ) {
 				/* @var S3Exception $result */
-				\AS3CF_Error::log( __FUNCTION__ . ' - ' . $result->getAwsErrorMessage() . ' - Attachment ID: ' . $attachment_id );
+				\as3i_Error::log( __FUNCTION__ . ' - ' . $result->getAwsErrorMessage() . ' - Attachment ID: ' . $attachment_id );
 			} else {
-				\AS3CF_Error::log( __FUNCTION__ . ' - Unrecognised class returned from CommandPool::batch - Attachment ID: ' . $attachment_id );
+				\as3i_Error::log( __FUNCTION__ . ' - Unrecognised class returned from CommandPool::batch - Attachment ID: ' . $attachment_id );
 			}
 		}
 
@@ -485,7 +486,7 @@ class AWS_Provider extends Provider {
 		if ( ! empty( $results ) ) {
 			foreach ( $results as $result ) {
 				/* @var S3Exception $result */
-				if ( is_a( $result, 'DeliciousBrains\WP_Offload_Media\Aws3\Aws\S3\Exception\S3Exception' ) ) {
+				if ( is_a( $result, 'Aws\S3\Exception\S3Exception' ) ) {
 					$command    = $result->getCommand()->toArray();
 					$failures[] = array(
 						'Key'     => $command['Key'],
@@ -605,7 +606,7 @@ class AWS_Provider extends Provider {
 		if ( 'cloudfront' === $args['domain'] && is_null( $expires ) && $args['cloudfront'] ) {
 			$cloudfront = $args['cloudfront'];
 			if ( $preview ) {
-				$cloudfront = AS3CF_Utils::sanitize_custom_domain( $cloudfront );
+				$cloudfront = as3i_Utils::sanitize_custom_domain( $cloudfront );
 			}
 
 			$domain = $cloudfront;

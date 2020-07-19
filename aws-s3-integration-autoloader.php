@@ -1,9 +1,9 @@
 <?php
 
 // Check if already defined
-if ( ! class_exists( 'WP_Offload_Media_Autoloader' ) ) {
+if ( ! class_exists( 'AWS_S3_Integration_Autoloader' ) ) {
 
-	class WP_Offload_Media_Autoloader {
+	class AWS_S3_Integration_Autoloader {
 
 		/**
 		 * @var string
@@ -18,7 +18,7 @@ if ( ! class_exists( 'WP_Offload_Media_Autoloader' ) ) {
 		/**
 		 * @var string
 		 */
-		protected $vendor = 'DeliciousBrains';
+		protected $vendor = 'Recuweb';
 
 		/**
 		 * Autoloader constructor.

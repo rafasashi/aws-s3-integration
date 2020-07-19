@@ -18,8 +18,7 @@ if ( $this->show_deprecated_domain_setting( $domain ) ) {
 		<?php echo $args['setting_msg']; ?>
 		<h4><?php _e( 'Custom Domain (CNAME)', 'aws-s3-integration' ) ?></h4>
 		<p class="domain-desc">
-			<?php printf( __( 'We strongly recommend you configure a CDN to point at your bucket and configure a subdomain of %1$s to point at your CDN. If you don\'t enter a subdomain of your site\'s domain in the field below it will negatively impact your site\'s SEO.', 'aws-s3-integration' ), AS3CF_Utils::current_base_domain() ); ?>
-			<?php echo $this->settings_more_info_link( 'domain', 'media+cloudfront+or+custom+domain' ); ?>
+			<?php printf( __( 'We strongly recommend you configure a CDN to point at your bucket and configure a subdomain of %1$s to point at your CDN. If you don\'t enter a subdomain of your site\'s domain in the field below it will negatively impact your site\'s SEO.', 'aws-s3-integration' ), as3i_Utils::current_base_domain() ); ?>
 		</p>
 		<?php
 		$args           = $this->get_setting_args( 'cloudfront' );

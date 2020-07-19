@@ -1,9 +1,9 @@
 <?php
 /**
- * AS3CF Compatibility Check
+ * as3i Compatibility Check
  *
  * @package     wp-aws
- * @copyright   Copyright (c) 2015, Delicious Brains
+ * @copyright   Copyright (c), Recuweb
  * @license     http://opensource.org/licenses/gpl-2.0.php GNU Public License
  * @since       0.1
  */
@@ -14,16 +14,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Check if already defined
-if ( ! class_exists( 'AS3CF_Compatibility_Check' ) ) {
+if ( ! class_exists( 'as3i_Compatibility_Check' ) ) {
 
 	/**
-	 * AS3CF_Compatibility_Check Class
+	 * as3i_Compatibility_Check Class
 	 *
 	 * This class handles compatibility between an AWS plugin and a required parent plugin
 	 *
 	 * @since 0.1
 	 */
-	class AS3CF_Compatibility_Check {
+	class as3i_Compatibility_Check {
 
 		/**
 		 * @var string The derived key of the plugin from the name, e.g. aws-s3-integration
@@ -31,7 +31,7 @@ if ( ! class_exists( 'AS3CF_Compatibility_Check' ) ) {
 		protected $plugin_slug;
 
 		/**
-		 * @var string The name of the plugin, e.g. WP Offload Media
+		 * @var string The name of the plugin, e.g. AWS S3 Integration
 		 */
 		protected $plugin_name;
 
@@ -345,7 +345,7 @@ if ( ! class_exists( 'AS3CF_Compatibility_Check' ) ) {
 						$msg          .= ' <a id="' . $this->plugin_slug . '-activate-parent" style="font-weight:bold;text-decoration:none;" href="' . $activate_url . '">' . _x( 'Activate it now.', 'Activate plugin', 'aws-s3-integration' ) . '</a>';
 					}
 				} else {
-					$install_url = 'https://deliciousbrains.com/my-account/';
+					$install_url = 'https://wordpress.recuweb.com/my-account/';
 					if ( is_null( $this->parent_plugin_url ) ) {
 						$install_url = $this->get_plugin_action_url( 'install', $this->parent_plugin_slug );
 					}
@@ -366,10 +366,10 @@ if ( ! class_exists( 'AS3CF_Compatibility_Check' ) ) {
 					$msg .= ' ' . sprintf( __( 'You currently have version %s installed.', 'aws-s3-integration' ), $current_parent_plugin_version );
 				}
 
-				global $as3cfpro;
-				if ( ! empty( $as3cfpro ) && $as3cfpro->get_plugin_slug( true ) === $this->parent_plugin_slug ) {
+				global $as3ipro;
+				if ( ! empty( $as3ipro ) && $as3ipro->get_plugin_slug( true ) === $this->parent_plugin_slug ) {
 					// Don't show update link for addons of a licensed plugin where the license is invalid
-					if ( ! $as3cfpro->is_valid_licence( false, true ) ) {
+					if ( ! $as3ipro->is_valid_licence( false, true ) ) {
 						$msg .= ' ' . sprintf( __( 'A valid license for %s is required to update.', 'aws-s3-integration' ), $this->get_parent_plugin_name() );
 						$msg .= $hide_notice_msg;
 
@@ -404,10 +404,10 @@ if ( ! class_exists( 'AS3CF_Compatibility_Check' ) ) {
 				$update_url  = $this->get_plugin_action_url( 'upgrade', $plugin_basename );
 				$upgrade_msg = ' <a style="font-weight:bold;text-decoration:none;white-space:nowrap;" href="' . $update_url . '">' . sprintf( __( 'Update %s to the latest version', 'aws-s3-integration' ), $this->plugin_name ) . '</a>';
 
-				global $as3cfpro;
-				if ( ! empty( $as3cfpro ) && $as3cfpro->get_plugin_slug( true ) === $this->parent_plugin_slug ) {
+				global $as3ipro;
+				if ( ! empty( $as3ipro ) && $as3ipro->get_plugin_slug( true ) === $this->parent_plugin_slug ) {
 					// Don't show update link for addons of a licensed plugin where the license is invalid
-					if ( ! $as3cfpro->is_valid_licence( false, true ) ) {
+					if ( ! $as3ipro->is_valid_licence( false, true ) ) {
 						$upgrade_msg = ' ' . sprintf( __( 'A valid license for %s is required to update.', 'aws-s3-integration' ), $this->get_parent_plugin_name() );
 					}
 				}
@@ -489,7 +489,7 @@ if ( ! class_exists( 'AS3CF_Compatibility_Check' ) ) {
 		 * @param string $message
 		 */
 		function render_notice( $message ) {
-			printf( '<div id="as3cf-compat-notice' . $this->plugin_slug . '" class="' . $this->notice_class . ' as3cf-compatibility-notice"><p>%s</p></div>', $message );
+			printf( '<div id="as3i-compat-notice' . $this->plugin_slug . '" class="' . $this->notice_class . ' as3i-compatibility-notice"><p>%s</p></div>', $message );
 		}
 
 		/**
@@ -532,7 +532,7 @@ if ( ! class_exists( 'AS3CF_Compatibility_Check' ) ) {
 		}
 
 		/**
-		 * Checks if another version of WP Offload Media (Lite) is active and deactivates it.
+		 * Checks if another version of AWS S3 Integration (Lite) is active and deactivates it.
 		 * To be hooked on `activated_plugin` so other plugin is deactivated when current plugin is activated.
 		 *
 		 * @param string $plugin
@@ -576,7 +576,7 @@ if ( ! class_exists( 'AS3CF_Compatibility_Check' ) ) {
 						return false;
 					}
 
-					set_transient( 'as3cf_deactivated_notice_id', $deactivated_notice_id, HOUR_IN_SECONDS );
+					set_transient( 'as3i_deactivated_notice_id', $deactivated_notice_id, HOUR_IN_SECONDS );
 					deactivate_plugins( $basename );
 
 					return true;

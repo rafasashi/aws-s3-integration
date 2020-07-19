@@ -1,13 +1,21 @@
 <?php
 
-namespace DeliciousBrains\WP_Offload_Media\Items;
+namespace Recuweb\AWS_S3_Integration\Items;
 
-use Amazon_S3_And_CloudFront;
+use AWS_s3_Integration;
 use WP_Error;
 
 class Media_Library_Item extends Item {
+	
 	private static $attachment_counts = array();
 	private static $attachment_count_skips = array();
+
+	var $total 					= 0;
+	var $total_paths 			= 0;
+	var $offloaded 				= 0;
+	var $offloaded_paths 		= 0;
+	var $not_offloaded 			= 0;
+	var $not_offloaded_paths	= 0;
 
 	/**
 	 * Item constructor.
@@ -69,17 +77,17 @@ class Media_Library_Item extends Item {
 	 * @return bool|Media_Library_Item
 	 */
 	public static function get_by_source_id( $source_id ) {
-		$as3cf_item = parent::get_by_source_id( $source_id );
-
-		if ( ! $as3cf_item ) {
+		$as3i_item = parent::get_by_source_id( $source_id );
+		
+		if ( ! $as3i_item ) {
 			$provider_object = static::_legacy_get_attachment_provider_info( $source_id );
 
 			if ( is_array( $provider_object ) ) {
-				$as3cf_item = static::_legacy_provider_info_to_item( $source_id, $provider_object );
+				$as3i_item = static::_legacy_provider_info_to_item( $source_id, $provider_object );
 			}
 		}
 
-		return $as3cf_item;
+		return $as3i_item;
 	}
 
 	/**
@@ -138,8 +146,8 @@ class Media_Library_Item extends Item {
 	 */
 	public static function count_attachments( $skip_transient = false, $force = false ) {
 		global $wpdb;
-
-		$transient_key = 'as3cf_' . get_current_blog_id() . '_attachment_counts';
+		
+		$transient_key = 'as3i_' . get_current_blog_id() . '_attachment_counts';
 
 		// Been here, done it, won't do it again!
 		// Well, unless this is the first transient skip for the prefix, then we need to do it.
@@ -148,6 +156,7 @@ class Media_Library_Item extends Item {
 		}
 
 		if ( $force || $skip_transient || false === ( $result = get_site_transient( $transient_key ) ) ) {
+			
 			// We want to count distinct relative Media Library paths
 			// and ensure type is also attachment as other post types can use the same _wp_attached_file postmeta key.
 			$sql = "
@@ -158,17 +167,19 @@ class Media_Library_Item extends Item {
 				WHERE m.`meta_key` = '_wp_attached_file'
 			";
 
-			$result = $wpdb->get_row( $sql, ARRAY_A );
+			if( $result = $wpdb->get_row( $sql, ARRAY_A ) ){
+				
+				$result['not_offloaded']       = $result['total'] - $result['offloaded'];
+				$result['not_offloaded_paths'] = max( 0, $result['total_paths'] - $result['offloaded_paths'] );
 
-			$result['not_offloaded']       = $result['total'] - $result['offloaded'];
-			$result['not_offloaded_paths'] = max( 0, $result['total_paths'] - $result['offloaded_paths'] );
+				ksort( $result );
 
-			ksort( $result );
-
+			}
+		
 			set_site_transient( $transient_key, $result, 2 * MINUTE_IN_SECONDS );
 
 			// One way or another we've skipped the transient.
-			self::$attachment_count_skips[ $transient_key ] = true;
+			self::$attachment_count_skips[ $transient_key ] = true;			
 		}
 
 		self::$attachment_counts[ $transient_key ] = $result;
@@ -219,7 +230,7 @@ class Media_Library_Item extends Item {
 		 *
 		 * @param array
 		 */
-		$ignored_mime_types = apply_filters( 'as3cf_ignored_mime_types', array() );
+		$ignored_mime_types = apply_filters( 'as3i_ignored_mime_types', array() );
 		if ( is_array( $ignored_mime_types ) && ! empty( $ignored_mime_types ) ) {
 			$ignored_mime_types = array_map( 'sanitize_text_field', $ignored_mime_types );
 			$sql                .= ' AND posts.post_mime_type NOT IN ("' . implode( '", "', $ignored_mime_types ) . '")';
@@ -260,7 +271,7 @@ class Media_Library_Item extends Item {
 			return array();
 		}
 
-		$paths = \AS3CF_Utils::make_upload_file_paths_relative( $paths );
+		$paths = \as3i_Utils::make_upload_file_paths_relative( $paths );
 
 		$args = array( static::$source_type );
 
@@ -336,7 +347,7 @@ class Media_Library_Item extends Item {
 		}
 
 		foreach ( $results as $result ) {
-			$as3cf_item = new Media_Library_Item(
+			$as3i_item = new Media_Library_Item(
 				$this->provider(),
 				$this->region(),
 				$this->bucket(),
@@ -347,7 +358,7 @@ class Media_Library_Item extends Item {
 				wp_basename( $this->original_source_path() ),
 				$this->private_sizes()
 			);
-			$as3cf_item->save();
+			$as3i_item->save();
 		}
 	}
 
@@ -401,7 +412,7 @@ class Media_Library_Item extends Item {
 
 		if ( ! empty( $provider_object ) && is_array( $provider_object ) && ! empty( $provider_object['bucket'] ) && ! empty( $provider_object['key'] ) ) {
 			$provider_object = array_merge( array(
-				'provider' => Amazon_S3_And_CloudFront::get_default_provider(),
+				'provider' => AWS_s3_Integration::get_default_provider(),
 			), $provider_object );
 		} else {
 			return false;
@@ -413,9 +424,9 @@ class Media_Library_Item extends Item {
 			return false;
 		}
 
-		$provider_object = apply_filters( 'as3cf_get_attachment_s3_info', $provider_object, $post_id ); // Backwards compatibility
+		$provider_object = apply_filters( 'as3i_get_attachment_s3_info', $provider_object, $post_id ); // Backwards compatibility
 
-		return apply_filters( 'as3cf_get_attachment_provider_info', $provider_object, $post_id );
+		return apply_filters( 'as3i_get_attachment_provider_info', $provider_object, $post_id );
 	}
 
 	/**
@@ -427,11 +438,11 @@ class Media_Library_Item extends Item {
 	 */
 	private static function _legacy_get_provider_object_region( $provider_object ) {
 		if ( ! isset( $provider_object['region'] ) ) {
-			/** @var Amazon_S3_And_CloudFront $as3cf */
-			global $as3cf;
+			/** @var AWS_s3_Integration $as3i */
+			global $as3i;
 
 			// If region hasn't been stored in the provider metadata retrieve using the bucket.
-			$region = $as3cf->get_bucket_region( $provider_object['bucket'], true );
+			$region = $as3i->get_bucket_region( $provider_object['bucket'], true );
 
 			// Could just return $region here regardless, but this format is good for debug during legacy migration.
 			if ( is_wp_error( $region ) ) {

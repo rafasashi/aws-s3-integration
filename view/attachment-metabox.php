@@ -1,5 +1,5 @@
 <?php
-/** @var Amazon_S3_And_CloudFront|Amazon_S3_And_CloudFront_Pro $this */
+/** @var AWS_s3_Integration|AWS_s3_Integration_Pro $this */
 /** @var array|bool $provider_object */
 /** @var WP_Post $post */
 /** @var array $available_actions */
@@ -22,32 +22,32 @@ $is_local_removable = $is_current_provider && $local_file_exists && in_array( 'r
 	<?php else : ?>
 		<div class="misc-pub-section">
 			<div class="s3-key"><?php echo $this->get_media_action_strings( 'provider' ); ?>:</div>
-			<input type="text" id="as3cf-provider" class="widefat<?php echo $provider_class; ?>" readonly="readonly" value="<?php echo $provider_name; ?>">
+			<input type="text" id="as3i-provider" class="widefat<?php echo $provider_class; ?>" readonly="readonly" value="<?php echo $provider_name; ?>">
 		</div>
 		<div class="misc-pub-section">
 			<div class="s3-key"><?php echo $this->get_media_action_strings( 'bucket' ); ?>:</div>
-			<input type="text" id="as3cf-bucket" class="widefat" readonly="readonly" value="<?php echo $provider_object['bucket']; ?>">
+			<input type="text" id="as3i-bucket" class="widefat" readonly="readonly" value="<?php echo $provider_object['bucket']; ?>">
 		</div>
 		<div class="misc-pub-section">
 			<div class="s3-key"><?php echo $this->get_media_action_strings( 'key' ); ?>:</div>
-			<input type="text" id="as3cf-key" class="widefat" readonly="readonly" value="<?php echo $provider_object['key']; ?>">
+			<input type="text" id="as3i-key" class="widefat" readonly="readonly" value="<?php echo $provider_object['key']; ?>">
 		</div>
 		<?php if ( isset( $provider_object['region'] ) && $provider_object['region'] ) : ?>
 			<div class="misc-pub-section">
 				<div class="s3-key"><?php echo $this->get_media_action_strings( 'region' ); ?>:</div>
-				<div id="as3cf-region" class="s3-value"><?php echo $provider_object['region']; ?></div>
+				<div id="as3i-region" class="s3-value"><?php echo $provider_object['region']; ?></div>
 			</div>
 		<?php endif; ?>
 		<div class="misc-pub-section">
 			<div class="s3-key"><?php echo $this->get_media_action_strings( 'acl' ); ?>:</div>
-			<div id="as3cf-acl" class="s3-value">
+			<div id="as3i-acl" class="s3-value">
 				<?php echo $this->get_acl_value_string( $provider_object['acl'], $post->ID ); ?>
 			</div>
 		</div>
 		<?php if ( $is_downloadable ) : ?>
 			<div class="misc-pub-section">
 				<div class="not-copied"><?php _e( 'File does not exist on server', 'aws-s3-integration' ); ?></div>
-				<a id="as3cf-download-action" href="<?php echo $this->get_media_action_url( 'download', $post->ID, $sendback ); ?>">
+				<a id="as3i-download-action" href="<?php echo $this->get_media_action_url( 'download', $post->ID, $sendback ); ?>">
 					<?php echo $this->get_media_action_strings( 'download' ); ?>
 				</a>
 			</div>
@@ -55,7 +55,7 @@ $is_local_removable = $is_current_provider && $local_file_exists && in_array( 'r
 		<?php if ( $is_local_removable ) : ?>
 			<div class="misc-pub-section">
 				<div class="not-copied"><?php _e( 'File exists on server', 'aws-s3-integration' ); ?></div>
-				<a id="as3cf-remove-local-action" href="<?php echo $this->get_media_action_url( 'remove_local', $post->ID, $sendback ); ?>">
+				<a id="as3i-remove-local-action" href="<?php echo $this->get_media_action_url( 'remove_local', $post->ID, $sendback ); ?>">
 					<?php echo $this->get_media_action_strings( 'remove_local' ); ?>
 				</a>
 			</div>
@@ -68,14 +68,14 @@ $is_local_removable = $is_current_provider && $local_file_exists && in_array( 'r
 	<div class="s3-actions">
 		<?php if ( $is_removable ) : ?>
 			<div class="remove-action">
-				<a id="as3cf-remove-action" href="<?php echo $this->get_media_action_url( 'remove', $post->ID, $sendback ); ?>">
+				<a id="as3i-remove-action" href="<?php echo $this->get_media_action_url( 'remove', $post->ID, $sendback ); ?>">
 					<?php echo $this->get_media_action_strings( 'remove' ); ?>
 				</a>
 			</div>
 		<?php endif; ?>
 		<?php if ( $is_copyable ) : ?>
 			<div class="copy-action">
-				<a id="as3cf-copy-action" href="<?php echo $this->get_media_action_url( 'copy', $post->ID, $sendback ); ?>" class="button button-secondary">
+				<a id="as3i-copy-action" href="<?php echo $this->get_media_action_url( 'copy', $post->ID, $sendback ); ?>" class="button button-secondary">
 					<?php echo $this->get_media_action_strings( 'copy' ); ?>
 				</a>
 			</div>

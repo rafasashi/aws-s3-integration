@@ -3,8 +3,8 @@
 	<textarea class="debug-log-textarea" autocomplete="off" readonly></textarea>
 	<?php
 	$args = array(
-		'nonce'              => wp_create_nonce( 'as3cf-download-log' ),
-		'as3cf-download-log' => '1',
+		'nonce'              => wp_create_nonce( 'as3i-download-log' ),
+		'as3i-download-log' => '1',
 		'hash'               => 'support',
 	);
 

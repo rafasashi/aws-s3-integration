@@ -1,11 +1,11 @@
-( function( $, as3cfModal ) {
+( function( $, as3iModal ) {
 
 	var savedSettings = {};
 	var bucketNamePattern = /[^a-z0-9.-]/;
 
 	var $body = $( 'body' );
-	var $tabs = $( '.as3cf-tab' );
-	var $settings = $( '.as3cf-settings' );
+	var $tabs = $( '.as3i-tab' );
+	var $settings = $( '.as3i-settings' );
 	var $activeTab;
 
 	/**
@@ -17,7 +17,7 @@
 	 * @returns {string}
 	 */
 	function serializedForm( tab ) {
-		return $( '#' + tab + ' .as3cf-main-settings form' ).find( 'input:not(.no-compare)' ).serialize();
+		return $( '#' + tab + ' .as3i-main-settings form' ).find( 'input:not(.no-compare)' ).serialize();
 	}
 
 	/**
@@ -40,7 +40,7 @@
 	 * @param {object} $input
 	 */
 	function validateCustomDomain( $input ) {
-		var $error = $input.next( '.as3cf-validation-error' );
+		var $error = $input.next( '.as3i-validation-error' );
 		var $submit = $( '#' + $activeTab.attr( 'id' ) + ' form button[type="submit"]' );
 		var pattern = /[^a-zA-Z0-9\.\-]/;
 
@@ -53,7 +53,7 @@
 		}
 	}
 
-	as3cf.tabs = {
+	as3i.tabs = {
 		defaultTab: 'media',
 		/**
 		 * Toggle settings tab
@@ -62,23 +62,23 @@
 		 * @param boolean persist_updated_notice
 		 */
 		toggle: function( hash, persist_updated_notice ) {
-			hash = as3cf.tabs.sanitizeHash( hash );
+			hash = as3i.tabs.sanitizeHash( hash );
 
 			$tabs.hide();
 			$activeTab = $( '#tab-' + hash );
 			$activeTab.show();
 			$( '.nav-tab' ).removeClass( 'nav-tab-active' );
 			$( 'a.nav-tab[data-tab="' + hash + '"]' ).addClass( 'nav-tab-active' );
-			$( '.as3cf-main' ).data( 'tab', hash );
+			$( '.as3i-main' ).data( 'tab', hash );
 			if ( $activeTab.data( 'prefix' ) ) {
-				as3cfModal.prefix = $activeTab.data( 'prefix' );
+				as3iModal.prefix = $activeTab.data( 'prefix' );
 			}
 			if ( ! persist_updated_notice ) {
-				$( '.as3cf-updated' ).removeClass( 'show' );
+				$( '.as3i-updated' ).removeClass( 'show' );
 			}
 
 			if ( 'support' === hash ) {
-				as3cf.tabs.getDiagnosticInfo();
+				as3i.tabs.getDiagnosticInfo();
 			}
 		},
 
@@ -88,11 +88,11 @@
 		getDiagnosticInfo: function() {
 			var $debugLog = $( '.debug-log-textarea' );
 
-			$debugLog.html( as3cf.strings.get_diagnostic_info );
+			$debugLog.html( as3i.strings.get_diagnostic_info );
 
 			var data = {
-				action: 'as3cf-get-diagnostic-info',
-				_nonce: as3cf.nonces.get_diagnostic_info
+				action: 'as3i-get-diagnostic-info',
+				_nonce: as3i.nonces.get_diagnostic_info
 			};
 
 			$.ajax( {
@@ -107,7 +107,7 @@
 					if ( 'undefined' !== typeof data[ 'success' ] ) {
 						$debugLog.html( data[ 'diagnostic_info' ] );
 					} else {
-						$debugLog.html( as3cf.strings.get_diagnostic_info_error );
+						$debugLog.html( as3i.strings.get_diagnostic_info_error );
 						$debugLog.append( data[ 'error' ] );
 					}
 				}
@@ -125,7 +125,7 @@
 			var $newTab = $( '#tab-' + hash );
 
 			if ( 0 === $newTab.length ) {
-				hash = as3cf.tabs.defaultTab;
+				hash = as3i.tabs.defaultTab;
 			}
 
 			return hash;
@@ -135,7 +135,7 @@
 	/**
 	 * Handle the bucket selection, either inline or in a modal
 	 */
-	as3cf.buckets = {
+	as3i.buckets = {
 
 		/**
 		 * Buckets must be at least this many characters
@@ -157,14 +157,14 @@
 				forceUpdate = false;
 			}
 
-			var $selectBucketForm = $( '.as3cf-bucket-container.' + as3cfModal.prefix + ' .as3cf-bucket-select' );
+			var $selectBucketForm = $( '.as3i-bucket-container.' + as3iModal.prefix + ' .as3i-bucket-select' );
 			var $selectBucketRegion = $selectBucketForm.find( '.bucket-select-region' );
-			var $bucketList = $selectBucketForm.find( '.as3cf-bucket-list' );
-			var selectedBucket = $( '#' + as3cfModal.prefix + '-bucket' ).val();
+			var $bucketList = $selectBucketForm.find( '.as3i-bucket-list' );
+			var selectedBucket = $( '#' + as3iModal.prefix + '-bucket' ).val();
 
 			if ( false === forceUpdate && $bucketList.find( 'li' ).length > 1 ) {
-				$( '.as3cf-bucket-list a' ).removeClass( 'selected' );
-				$( '.as3cf-bucket-list a[data-bucket="' + selectedBucket + '"]' ).addClass( 'selected' );
+				$( '.as3i-bucket-list a' ).removeClass( 'selected' );
+				$( '.as3i-bucket-list a[data-bucket="' + selectedBucket + '"]' ).addClass( 'selected' );
 
 				this.scrollToSelected();
 				return;
@@ -176,8 +176,8 @@
 			this.disabledButtons();
 
 			var data = {
-				action: as3cfModal.prefix + '-get-buckets',
-				_nonce: window[ as3cfModal.prefix.replace( /-/g, '_' ) ].nonces.get_buckets
+				action: as3iModal.prefix + '-get-buckets',
+				_nonce: window[ as3iModal.prefix.replace( /-/g, '_' ) ].nonces.get_buckets
 			};
 
 			if ( $selectBucketRegion.val() ) {
@@ -193,13 +193,13 @@
 				data: data,
 				error: function( jqXHR, textStatus, errorThrown ) {
 					$bucketList.html( '' );
-					that.showError( as3cf.strings.get_buckets_error, errorThrown, 'as3cf-bucket-select' );
+					that.showError( as3i.strings.get_buckets_error, errorThrown, 'as3i-bucket-select' );
 				},
 				success: function( data, textStatus, jqXHR ) {
 					$bucketList.html( '' );
 
 					if ( 'undefined' !== typeof data[ 'success' ] ) {
-						$( '.as3cf-bucket-error' ).hide();
+						$( '.as3i-bucket-error' ).hide();
 
 						if ( 0 === data[ 'buckets' ].length ) {
 							$bucketList.html( '<li class="loading">' + $bucketList.data( 'nothing-found' ) + '</li>' );
@@ -213,7 +213,7 @@
 							that.disabledButtons();
 						}
 					} else {
-						that.showError( as3cf.strings.get_buckets_error, data[ 'error' ], 'as3cf-bucket-select' );
+						that.showError( as3i.strings.get_buckets_error, data[ 'error' ], 'as3i-bucket-select' );
 					}
 				}
 			} );
@@ -223,14 +223,14 @@
 		 * Scroll to selected bucket
 		 */
 		scrollToSelected: function() {
-			if ( ! $( '.as3cf-bucket-list a.selected' ).length ) {
+			if ( ! $( '.as3i-bucket-list a.selected' ).length ) {
 				return;
 			}
 
-			var offset = $( 'ul.as3cf-bucket-list li' ).first().position().top + 150;
+			var offset = $( 'ul.as3i-bucket-list li' ).first().position().top + 150;
 
-			$( '.as3cf-bucket-list' ).animate( {
-				scrollTop: $( 'ul.as3cf-bucket-list li a.selected' ).position().top - offset
+			$( '.as3i-bucket-list' ).animate( {
+				scrollTop: $( 'ul.as3i-bucket-list li a.selected' ).position().top - offset
 			} );
 		},
 
@@ -240,36 +240,36 @@
 		 * @param {object} $link
 		 */
 		setSelected: function( $link ) {
-			$( '.as3cf-bucket-list a' ).removeClass( 'selected' );
+			$( '.as3i-bucket-list a' ).removeClass( 'selected' );
 			$link.addClass( 'selected' );
-			$( '#' + as3cfModal.prefix + '-bucket-select-name' ).val( $link.data( 'bucket' ) );
+			$( '#' + as3iModal.prefix + '-bucket-select-name' ).val( $link.data( 'bucket' ) );
 		},
 
 		/**
 		 * Disable bucket buttons
 		 */
 		disabledButtons: function() {
-			var $createBucketForm = $( '.as3cf-bucket-container.' + as3cfModal.prefix + ' .as3cf-bucket-create' );
-			var $manualBucketForm = $( '.as3cf-bucket-container.' + as3cfModal.prefix + ' .as3cf-bucket-manual' );
-			var $selectBucketForm = $( '.as3cf-bucket-container.' + as3cfModal.prefix + ' .as3cf-bucket-select' );
+			var $createBucketForm = $( '.as3i-bucket-container.' + as3iModal.prefix + ' .as3i-bucket-create' );
+			var $manualBucketForm = $( '.as3i-bucket-container.' + as3iModal.prefix + ' .as3i-bucket-manual' );
+			var $selectBucketForm = $( '.as3i-bucket-container.' + as3iModal.prefix + ' .as3i-bucket-select' );
 
 			if ( 0 === $createBucketForm.length && 0 === $manualBucketForm.length && 0 === $selectBucketForm.length ) {
 				return;
 			}
 
-			if ( 0 < $createBucketForm.length && this.isValidName( $createBucketForm.find( '.as3cf-bucket-name' ).val() ) ) {
+			if ( 0 < $createBucketForm.length && this.isValidName( $createBucketForm.find( '.as3i-bucket-name' ).val() ) ) {
 				$createBucketForm.find( 'button[type=submit]' ).prop( 'disabled', false );
 			} else {
 				$createBucketForm.find( 'button[type=submit]' ).prop( 'disabled', true );
 			}
 
-			if ( 0 < $manualBucketForm.length && this.isValidName( $manualBucketForm.find( '.as3cf-bucket-name' ).val() ) ) {
+			if ( 0 < $manualBucketForm.length && this.isValidName( $manualBucketForm.find( '.as3i-bucket-name' ).val() ) ) {
 				$manualBucketForm.find( 'button[type=submit]' ).prop( 'disabled', false );
 			} else {
 				$manualBucketForm.find( 'button[type=submit]' ).prop( 'disabled', true );
 			}
 
-			if ( 0 < $selectBucketForm.length && 1 === $selectBucketForm.find( '.as3cf-bucket-list a.selected' ).length ) {
+			if ( 0 < $selectBucketForm.length && 1 === $selectBucketForm.find( '.as3i-bucket-list a.selected' ).length ) {
 				$selectBucketForm.find( 'button[type=submit]' ).prop( 'disabled', false );
 			} else {
 				$selectBucketForm.find( 'button[type=submit]' ).prop( 'disabled', true );
@@ -284,8 +284,8 @@
 		 * @param {string} [context]
 		 */
 		showError: function( title, error, context ) {
-			var $activeView = $( '.as3cf-bucket-container' ).children( ':visible' );
-			var $bucketError = $activeView.find( '.as3cf-bucket-error' );
+			var $activeView = $( '.as3i-bucket-container' ).children( ':visible' );
+			var $bucketError = $activeView.find( '.as3i-bucket-error' );
 
 			context = ( 'undefined' === typeof context ) ? null : context;
 
@@ -331,17 +331,17 @@
 			var message = null;
 
 			if ( true === bucketNamePattern.test( bucketName ) ) {
-				message = as3cf.strings.create_bucket_invalid_chars;
+				message = as3i.strings.create_bucket_invalid_chars;
 			} else if ( bucketName.length < 3 ) {
-				message = as3cf.strings.create_bucket_name_short;
+				message = as3i.strings.create_bucket_name_short;
 			} else if ( bucketName.length > 63 ) {
-				message = as3cf.strings.create_bucket_name_long;
+				message = as3i.strings.create_bucket_name_long;
 			}
 
 			if ( message && bucketName.length > 0 ) {
-				$( '.as3cf-invalid-bucket-name' ).html( message );
+				$( '.as3i-invalid-bucket-name' ).html( message );
 			} else {
-				$( '.as3cf-invalid-bucket-name' ).html( '' );
+				$( '.as3i-invalid-bucket-name' ).html( '' );
 			}
 		}
 
@@ -352,7 +352,7 @@
 	 *
 	 * Intended for use on plugin settings page.
 	 */
-	as3cf.reloadUpdated = function() {
+	as3i.reloadUpdated = function() {
 		var url = location.pathname + location.search;
 
 		if ( ! location.search.match( /[?&]updated=/ ) ) {
@@ -367,11 +367,11 @@
 	/**
 	 * Show the standard "Settings saved." notice if not already visible.
 	 */
-	as3cf.showSettingsSavedNotice = function() {
-		if ( 0 < $( '#setting-error-settings_updated:visible' ).length || 0 < $( '#as3cf-settings_updated:visible' ).length ) {
+	as3i.showSettingsSavedNotice = function() {
+		if ( 0 < $( '#setting-error-settings_updated:visible' ).length || 0 < $( '#as3i-settings_updated:visible' ).length ) {
 			return;
 		}
-		var settingsUpdatedNotice = '<div id="as3cf-settings_updated" class="updated settings-error notice is-dismissible"><p><strong>' + as3cf.strings.settings_saved + '</strong></p></div>';
+		var settingsUpdatedNotice = '<div id="as3i-settings_updated" class="updated settings-error notice is-dismissible"><p><strong>' + as3i.strings.settings_saved + '</strong></p></div>';
 		$( 'h2.nav-tab-wrapper' ).after( settingsUpdatedNotice );
 		$( document ).trigger( 'wp-updates-notice-added' ); // Hack to run WP Core's makeNoticesDismissible() function.
 	};
@@ -382,27 +382,27 @@
 	 * @returns {string}
 	 */
 	function setBucketLink() {
-		var bucket = $( '#' + as3cfModal.prefix + '-bucket' ).val();
+		var bucket = $( '#' + as3iModal.prefix + '-bucket' ).val();
 		var $objectPrefix = $activeTab.find( 'input[name="object-prefix"]' );
 		var prefix = $objectPrefix.val();
 
 		if ( '' !== prefix ) {
-			prefix = as3cf.provider_console_url_prefix_param + encodeURIComponent( prefix );
+			prefix = as3i.provider_console_url_prefix_param + encodeURIComponent( prefix );
 		}
 
-		var url = as3cf.provider_console_url + bucket + prefix;
+		var url = as3i.provider_console_url + bucket + prefix;
 
-		$( '#' + as3cfModal.prefix + '-view-bucket' ).attr( 'href', url );
+		$( '#' + as3iModal.prefix + '-view-bucket' ).attr( 'href', url );
 	}
 
 	/*
 	 * Toggle the lost files notice
 	 */
 	function toggleLostFilesNotice() {
-		if ( $( '#as3cf-remove-local-file' ).is( ':checked' ) && $( '#as3cf-serve-from-s3' ).is( ':not(:checked)' ) ) {
-			$( '#as3cf-lost-files-notice' ).show();
+		if ( $( '#as3i-remove-local-file' ).is( ':checked' ) && $( '#as3i-serve-from-s3' ).is( ':not(:checked)' ) ) {
+			$( '#as3i-lost-files-notice' ).show();
 		} else {
-			$( '#as3cf-lost-files-notice' ).hide();
+			$( '#as3i-lost-files-notice' ).hide();
 		}
 	}
 
@@ -410,10 +410,10 @@
 	 * Toggle the remove local files notice
 	 */
 	function toggleRemoveLocalNotice() {
-		if ( $( '#as3cf-remove-local-file' ).is( ':checked' ) ) {
-			$( '#as3cf-remove-local-notice' ).show();
+		if ( $( '#as3i-remove-local-file' ).is( ':checked' ) ) {
+			$( '#as3i-remove-local-notice' ).show();
 		} else {
-			$( '#as3cf-remove-local-notice' ).hide();
+			$( '#as3i-remove-local-notice' ).hide();
 		}
 	}
 
@@ -422,9 +422,9 @@
 	 */
 	function toggleSEOFriendlyURLNotice( seo_friendly ) {
 		if ( true !== seo_friendly ) {
-			$( '#as3cf-seo-friendly-url-notice' ).show();
+			$( '#as3i-seo-friendly-url-notice' ).show();
 		} else {
-			$( '#as3cf-seo-friendly-url-notice' ).hide();
+			$( '#as3i-seo-friendly-url-notice' ).hide();
 		}
 	}
 
@@ -432,13 +432,13 @@
 	 * Generate URL preview
 	 */
 	function generateUrlPreview() {
-		$( '.as3cf-url-preview' ).html( 'Generating...' );
+		$( '.as3i-url-preview' ).html( 'Generating...' );
 
 		var data = {
-			_nonce: as3cf.nonces.get_url_preview
+			_nonce: as3i.nonces.get_url_preview
 		};
 
-		$.each( $( '#tab-' + as3cf.tabs.defaultTab + ' .as3cf-main-settings form' ).serializeArray(), function( i, o ) {
+		$.each( $( '#tab-' + as3i.tabs.defaultTab + ' .as3i-main-settings form' ).serializeArray(), function( i, o ) {
 			var n = o.name,
 				v = o.value;
 			n = n.replace( '[]', '' );
@@ -446,7 +446,7 @@
 		} );
 
 		// Overwrite the save action stored in the form
-		data[ 'action' ] = 'as3cf-get-url-preview';
+		data[ 'action' ] = 'as3i-get-url-preview';
 
 		$.ajax( {
 			url: ajaxurl,
@@ -454,14 +454,14 @@
 			dataType: 'JSON',
 			data: data,
 			error: function( jqXHR, textStatus, errorThrown ) {
-				alert( as3cf.strings.get_url_preview_error + errorThrown );
+				alert( as3i.strings.get_url_preview_error + errorThrown );
 			},
 			success: function( data, textStatus, jqXHR ) {
 				if ( 'undefined' !== typeof data[ 'success' ] ) {
-					$( '.as3cf-url-preview' ).html( data[ 'url' ] );
+					$( '.as3i-url-preview' ).html( data[ 'url' ] );
 					toggleSEOFriendlyURLNotice( data[ 'seo_friendly' ] );
 				} else {
-					alert( as3cf.strings.get_url_preview_error + data[ 'error' ] );
+					alert( as3i.strings.get_url_preview_error + data[ 'error' ] );
 				}
 			}
 		} );
@@ -473,15 +473,15 @@
 	function renderCurrentTab() {
 
 		// If rendering the default tab, or a bare hash clean the hash.
-		if ( '#' + as3cf.tabs.defaultTab === location.hash ) {
+		if ( '#' + as3i.tabs.defaultTab === location.hash ) {
 			location.hash = '';
 
 			return;
 		}
 
-		as3cf.tabs.toggle( location.hash.replace( '#', '' ), true );
+		as3i.tabs.toggle( location.hash.replace( '#', '' ), true );
 
-		$( document ).trigger( 'as3cf.tabRendered', [ location.hash.replace( '#', '' ) ] );
+		$( document ).trigger( 'as3i.tabRendered', [ location.hash.replace( '#', '' ) ] );
 	}
 
 	$( document ).ready( function() {
@@ -504,8 +504,8 @@
 		};
 
 		// Move any compatibility errors below the nav tabs
-		var $navTabs = $( '.as3cf-main .nav-tab-wrapper' );
-		$( '.as3cf-compatibility-notice, div.updated, div.error, div.notice' ).not( '.below-h2, .inline' ).insertAfter( $navTabs );
+		var $navTabs = $( '.as3i-main .nav-tab-wrapper' );
+		$( '.as3i-compatibility-notice, div.updated, div.error, div.notice' ).not( '.below-h2, .inline' ).insertAfter( $navTabs );
 
 		// Settings
 		// --------------------
@@ -518,7 +518,7 @@
 		}
 
 		// Prompt user with dialog if leaving the settings page with unsaved changes
-		$( window ).on( 'beforeunload.as3cf-settings', function() {
+		$( window ).on( 'beforeunload.as3i-settings', function() {
 			if ( $.isEmptyObject( savedSettings ) ) {
 				return;
 			}
@@ -526,18 +526,18 @@
 			var tab = $activeTab.attr( 'id' );
 
 			if ( serializedForm( tab ) !== savedSettings[ tab ] ) {
-				return as3cf.strings.save_alert;
+				return as3i.strings.save_alert;
 			}
 		} );
 
 		// Let the save settings submit happen as normal
-		$( document ).on( 'submit', '.as3cf-main-settings form', function( e ) {
+		$( document ).on( 'submit', '.as3i-main-settings form', function( e ) {
 
 			// Disable unload warning
-			$( window ).off( 'beforeunload.as3cf-settings' );
+			$( window ).off( 'beforeunload.as3i-settings' );
 		} );
 
-		$( '.as3cf-switch' ).on( 'click', function( e ) {
+		$( '.as3i-switch' ).on( 'click', function( e ) {
 			if ( ! $( this ).hasClass( 'disabled' ) ) {
 				setCheckbox( $( this ).attr( 'id' ) );
 			}
@@ -545,13 +545,13 @@
 
 		$tabs.on( 'change', '.sub-toggle', function( e ) {
 			var setting = $( this ).attr( 'id' );
-			$( '.as3cf-setting.' + setting ).toggleClass( 'hide' );
+			$( '.as3i-setting.' + setting ).toggleClass( 'hide' );
 		} );
 
-		$( '.as3cf-domain' ).on( 'change', 'input[type="radio"]', function( e ) {
+		$( '.as3i-domain' ).on( 'change', 'input[type="radio"]', function( e ) {
 			var $selected = $( this ).closest( 'input:radio[name="domain"]:checked' );
 			var domain = $selected.val();
-			var $cloudfront = $( this ).parents( '.as3cf-domain' ).find( '.as3cf-setting.cloudfront' );
+			var $cloudfront = $( this ).parents( '.as3i-domain' ).find( '.as3i-setting.cloudfront' );
 			var cloudfrontSelected = ( 'cloudfront' === domain );
 			$cloudfront.toggleClass( 'hide', ! cloudfrontSelected );
 		} );
@@ -561,17 +561,17 @@
 		} );
 
 		toggleLostFilesNotice();
-		$( '#as3cf-serve-from-s3,#as3cf-remove-local-file' ).on( 'change', function( e ) {
+		$( '#as3i-serve-from-s3,#as3i-remove-local-file' ).on( 'change', function( e ) {
 			toggleLostFilesNotice();
 		} );
 
 		toggleRemoveLocalNotice();
-		$( '#as3cf-remove-local-file' ).on( 'change', function( e ) {
+		$( '#as3i-remove-local-file' ).on( 'change', function( e ) {
 			toggleRemoveLocalNotice();
 		} );
 
 		// Don't allow 'enter' key to submit form on text input settings
-		$( '.as3cf-setting input[type="text"]' ).keypress( function( event ) {
+		$( '.as3i-setting input[type="text"]' ).keypress( function( event ) {
 			if ( 13 === event.which ) {
 				event.preventDefault();
 
@@ -592,7 +592,7 @@
 			if ( 'cloudfront' !== $input.val() ) {
 				$submit.prop( 'disabled', false );
 			} else {
-				validateCustomDomain( $input.next( '.as3cf-setting' ).find( 'input[name="cloudfront"]' ) );
+				validateCustomDomain( $input.next( '.as3i-setting' ).find( 'input[name="cloudfront"]' ) );
 			}
 		} );
 
@@ -605,37 +605,37 @@
 		// --------------------
 
 		// Move bucket errors
-		$( '#tab-media > .as3cf-bucket-error' ).detach().insertAfter( '.as3cf-bucket-container h3' );
+		$( '#tab-media > .as3i-bucket-error' ).detach().insertAfter( '.as3i-bucket-container h3' );
 
 		// Enable/disable change bucket's save buttons.
-		as3cf.buckets.disabledButtons();
+		as3i.buckets.disabledButtons();
 
 		// Bucket list refresh handler
 		$body.on( 'click', '.bucket-action-refresh', function( e ) {
 			e.preventDefault();
-			as3cf.buckets.loadList( true );
+			as3i.buckets.loadList( true );
 		} );
 
 		// Bucket list refresh on region change handler
 		$body.on( 'change', '.bucket-select-region', function( e ) {
 			e.preventDefault();
-			as3cf.buckets.loadList( true );
+			as3i.buckets.loadList( true );
 		} );
 
 		// If select bucket form is available on load, populate its list.
-		if ( 0 < $( '.as3cf-bucket-container.' + as3cfModal.prefix + ' .as3cf-bucket-select' ).length ) {
-			as3cf.buckets.loadList( true );
+		if ( 0 < $( '.as3i-bucket-container.' + as3iModal.prefix + ' .as3i-bucket-select' ).length ) {
+			as3i.buckets.loadList( true );
 		}
 
 		// Bucket list click handler
-		$body.on( 'click', '.as3cf-bucket-list a', function( e ) {
+		$body.on( 'click', '.as3i-bucket-list a', function( e ) {
 			e.preventDefault();
-			as3cf.buckets.setSelected( $( this ) );
-			as3cf.buckets.disabledButtons();
+			as3i.buckets.setSelected( $( this ) );
+			as3i.buckets.disabledButtons();
 		} );
 
 		// External links click handler
-		$( '.as3cf-bucket-container' ).on( 'click', 'a.js-link', function( e ) {
+		$( '.as3i-bucket-container' ).on( 'click', 'a.js-link', function( e ) {
 			e.preventDefault();
 			window.open( $( this ).attr( 'href' ) );
 
@@ -643,20 +643,20 @@
 		} );
 
 		// Validate bucket name on create
-		$body.on( 'input keyup', '.as3cf-bucket-create .as3cf-bucket-name', function( e ) {
+		$body.on( 'input keyup', '.as3i-bucket-create .as3i-bucket-name', function( e ) {
 			var bucketName = $( this ).val();
-			as3cf.buckets.updateNameNotice( bucketName );
-			as3cf.buckets.disabledButtons();
+			as3i.buckets.updateNameNotice( bucketName );
+			as3i.buckets.disabledButtons();
 		} );
 
-		$body.on( 'input keyup', '.as3cf-bucket-manual .as3cf-bucket-name', function( e ) {
+		$body.on( 'input keyup', '.as3i-bucket-manual .as3i-bucket-name', function( e ) {
 			var bucketName = $( this ).val();
-			as3cf.buckets.updateNameNotice( bucketName );
-			as3cf.buckets.disabledButtons();
+			as3i.buckets.updateNameNotice( bucketName );
+			as3i.buckets.disabledButtons();
 		} );
 
 		// Don't allow 'enter' key to submit form on text input settings
-		$( '.as3cf-bucket-container input[type="text"]' ).keypress( function( event ) {
+		$( '.as3i-bucket-container input[type="text"]' ).keypress( function( event ) {
 			if ( 13 === event.which ) {
 				event.preventDefault();
 
@@ -665,4 +665,4 @@
 		} );
 	} );
 
-} )( jQuery, as3cfModal );
+} )( jQuery, as3iModal );

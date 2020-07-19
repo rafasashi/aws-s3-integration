@@ -7,10 +7,10 @@
  * @param int     $expires Seconds for the link to live
  * @param mixed   $size    Size of the image to get
  */
-if ( ! function_exists( 'as3cf_get_secure_attachment_url' ) ) {
-	function as3cf_get_secure_attachment_url( $post_id, $expires = 900, $size = null ) {
-		global $as3cf;
+if ( ! function_exists( 'as3i_get_secure_attachment_url' ) ) {
+	function as3i_get_secure_attachment_url( $post_id, $expires = 900, $size = null ) {
+		global $as3i;
 
-		return $as3cf->get_secure_attachment_url( $post_id, $expires, $size );
+		return $as3i->get_secure_attachment_url( $post_id, $expires, $size );
 	}
 }

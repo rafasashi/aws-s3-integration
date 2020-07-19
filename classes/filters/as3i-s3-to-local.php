@@ -1,8 +1,8 @@
 <?php
 
-use DeliciousBrains\WP_Offload_Media\Items\Media_Library_Item;
+use Recuweb\AWS_S3_Integration\Items\Media_Library_Item;
 
-class AS3CF_S3_To_Local extends AS3CF_Filter {
+class as3i_S3_To_Local extends as3i_Filter {
 
 	/**
 	 * Init.
@@ -18,8 +18,8 @@ class AS3CF_S3_To_Local extends AS3CF_Filter {
 		// Posts
 		add_filter( 'content_save_pre', array( $this, 'filter_post' ) );
 		add_filter( 'excerpt_save_pre', array( $this, 'filter_post' ) );
-		add_filter( 'as3cf_filter_post_s3_to_local', array( $this, 'filter_post' ) ); // Backwards compatibility
-		add_filter( 'as3cf_filter_post_provider_to_local', array( $this, 'filter_post' ) );
+		add_filter( 'as3i_filter_post_s3_to_local', array( $this, 'filter_post' ) ); // Backwards compatibility
+		add_filter( 'as3i_filter_post_provider_to_local', array( $this, 'filter_post' ) );
 		// Widgets
 		add_filter( 'widget_update_callback', array( $this, 'filter_widget_save' ), 10, 4 );
 	}
@@ -71,7 +71,7 @@ class AS3CF_S3_To_Local extends AS3CF_Filter {
 	 */
 	protected function url_needs_replacing( $url ) {
 		$uploads  = wp_upload_dir();
-		$base_url = AS3CF_Utils::remove_scheme( $uploads['baseurl'] );
+		$base_url = as3i_Utils::remove_scheme( $uploads['baseurl'] );
 
 		if ( false !== strpos( $url, $base_url ) ) {
 			// Local URL, no replacement needed
@@ -91,7 +91,7 @@ class AS3CF_S3_To_Local extends AS3CF_Filter {
 	 * @return bool|string
 	 */
 	protected function get_url( $attachment_id, $size = null ) {
-		return $this->as3cf->get_attachment_local_url_size( $attachment_id, $size );
+		return $this->as3i->get_attachment_local_url_size( $attachment_id, $size );
 	}
 
 	/**
@@ -102,7 +102,7 @@ class AS3CF_S3_To_Local extends AS3CF_Filter {
 	 * @return string|false
 	 */
 	protected function get_base_url( $attachment_id ) {
-		return $this->as3cf->get_attachment_url( $attachment_id );
+		return $this->as3i->get_attachment_url( $attachment_id );
 	}
 
 	/**
@@ -113,7 +113,7 @@ class AS3CF_S3_To_Local extends AS3CF_Filter {
 	 * @return bool|int
 	 */
 	public function get_attachment_id_from_url( $url ) {
-		$full_url = AS3CF_Utils::remove_size_from_filename( $url );
+		$full_url = as3i_Utils::remove_size_from_filename( $url );
 
 		// Result for URL already cached in request whether found or not, return it.
 		if ( isset( $this->query_cache[ $full_url ] ) ) {
@@ -160,7 +160,7 @@ class AS3CF_S3_To_Local extends AS3CF_Filter {
 	 * @return string
 	 */
 	protected function normalize_find_value( $url ) {
-		return $this->as3cf->encode_filename_in_path( $url );
+		return $this->as3i->encode_filename_in_path( $url );
 	}
 
 	/**
@@ -171,7 +171,7 @@ class AS3CF_S3_To_Local extends AS3CF_Filter {
 	 * @return string
 	 */
 	protected function normalize_replace_value( $url ) {
-		return AS3CF_Utils::decode_filename_in_path( $url );
+		return as3i_Utils::decode_filename_in_path( $url );
 	}
 
 	/**

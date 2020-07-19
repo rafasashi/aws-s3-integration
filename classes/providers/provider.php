@@ -1,18 +1,18 @@
 <?php
 
-namespace DeliciousBrains\WP_Offload_Media\Providers;
+namespace Recuweb\AWS_S3_Integration\Providers;
 
-use AS3CF_Plugin_Base;
-use AS3CF_Error;
-use AS3CF_Utils;
+use as3i_Plugin_Base;
+use as3i_Error;
+use as3i_Utils;
 use Exception;
 
 abstract class Provider {
 
 	/**
-	 * @var \Amazon_S3_And_CloudFront|\Amazon_S3_And_CloudFront_Pro
+	 * @var \AWS_s3_Integration|\AWS_s3_Integration_Pro
 	 */
-	private $as3cf;
+	private $as3i;
 
 	/**
 	 * @var
@@ -151,10 +151,10 @@ abstract class Provider {
 	/**
 	 * Provider constructor.
 	 *
-	 * @param AS3CF_Plugin_Base $as3cf
+	 * @param as3i_Plugin_Base $as3i
 	 */
-	public function __construct( \AS3CF_Plugin_Base $as3cf ) {
-		$this->as3cf = $as3cf;
+	public function __construct( \as3i_Plugin_Base $as3i ) {
+		$this->as3i = $as3i;
 	}
 
 	/**
@@ -257,7 +257,7 @@ abstract class Provider {
 			return $constant ? constant( $constant ) : '';
 		}
 
-		return $this->as3cf->get_core_setting( static::$access_key_id_setting_name );
+		return $this->as3i->get_core_setting( static::$access_key_id_setting_name );
 	}
 
 	/**
@@ -274,7 +274,7 @@ abstract class Provider {
 			return $constant ? constant( $constant ) : '';
 		}
 
-		return $this->as3cf->get_core_setting( static::$secret_access_key_setting_name );
+		return $this->as3i->get_core_setting( static::$secret_access_key_setting_name );
 	}
 
 	/**
@@ -292,7 +292,7 @@ abstract class Provider {
 	 * @return string|false Constant name if defined, otherwise false
 	 */
 	public static function access_key_id_constant() {
-		return AS3CF_Utils::get_first_defined_constant( static::$access_key_id_constants );
+		return as3i_Utils::get_first_defined_constant( static::$access_key_id_constants );
 	}
 
 	/**
@@ -301,7 +301,7 @@ abstract class Provider {
 	 * @return string|false Constant name if defined, otherwise false
 	 */
 	public static function secret_access_key_constant() {
-		return AS3CF_Utils::get_first_defined_constant( static::$secret_access_key_constants );
+		return as3i_Utils::get_first_defined_constant( static::$secret_access_key_constants );
 	}
 
 	/**
@@ -344,7 +344,7 @@ abstract class Provider {
 			return $constant ? constant( $constant ) : false;
 		}
 
-		return $this->as3cf->get_core_setting( static::$use_server_roles_setting_name, false );
+		return $this->as3i->get_core_setting( static::$use_server_roles_setting_name, false );
 	}
 
 	/**
@@ -353,7 +353,7 @@ abstract class Provider {
 	 * @return string|false Constant name if defined, otherwise false
 	 */
 	public static function use_server_roles_constant() {
-		return AS3CF_Utils::get_first_defined_constant( static::$use_server_roles_constants );
+		return as3i_Utils::get_first_defined_constant( static::$use_server_roles_constants );
 	}
 
 	/**
@@ -397,7 +397,7 @@ abstract class Provider {
 	 * @return array|bool
 	 */
 	public function get_key_file() {
-		$key_file = $this->as3cf->get_core_setting( static::$key_file_setting_name, false );
+		$key_file = $this->as3i->get_core_setting( static::$key_file_setting_name, false );
 
 		return $key_file;
 	}
@@ -421,7 +421,7 @@ abstract class Provider {
 			}
 		}
 
-		return $this->validate_key_file_path( $this->as3cf->get_core_setting( static::$key_file_path_setting_name, false ) );
+		return $this->validate_key_file_path( $this->as3i->get_core_setting( static::$key_file_path_setting_name, false ) );
 	}
 
 	/**
@@ -433,14 +433,14 @@ abstract class Provider {
 	 */
 	public function validate_key_file_path( $key_file_path ) {
 		$notice_id = 'validate-key-file-path';
-		$this->as3cf->notices->remove_notice_by_id( $notice_id );
+		$this->as3i->notices->remove_notice_by_id( $notice_id );
 
 		if ( empty( $key_file_path ) ) {
 			return false;
 		}
 
 		if ( ! file_exists( $key_file_path ) ) {
-			$this->as3cf->notices->add_notice( __( 'Given Key File Path is invalid or could not be accessed.', 'aws-s3-integration' ), array( 'type' => 'error', 'only_show_in_settings' => true, 'only_show_on_tab' => 'media', 'custom_id' => $notice_id ) );
+			$this->as3i->notices->add_notice( __( 'Given Key File Path is invalid or could not be accessed.', 'aws-s3-integration' ), array( 'type' => 'error', 'only_show_in_settings' => true, 'only_show_on_tab' => 'media', 'custom_id' => $notice_id ) );
 
 			return false;
 		}
@@ -450,12 +450,12 @@ abstract class Provider {
 
 			// An exception isn't always thrown, so check value instead.
 			if ( empty( $value ) ) {
-				$this->as3cf->notices->add_notice( __( 'Could not read Key File Path\'s contents.', 'aws-s3-integration' ), array( 'type' => 'error', 'only_show_in_settings' => true, 'only_show_on_tab' => 'media', 'custom_id' => $notice_id ) );
+				$this->as3i->notices->add_notice( __( 'Could not read Key File Path\'s contents.', 'aws-s3-integration' ), array( 'type' => 'error', 'only_show_in_settings' => true, 'only_show_on_tab' => 'media', 'custom_id' => $notice_id ) );
 
 				return false;
 			}
 		} catch ( \Exception $e ) {
-			$this->as3cf->notices->add_notice( __( 'Could not read Key File Path\'s contents.', 'aws-s3-integration' ), array( 'type' => 'error', 'only_show_in_settings' => true, 'only_show_on_tab' => 'media', 'custom_id' => $notice_id ) );
+			$this->as3i->notices->add_notice( __( 'Could not read Key File Path\'s contents.', 'aws-s3-integration' ), array( 'type' => 'error', 'only_show_in_settings' => true, 'only_show_on_tab' => 'media', 'custom_id' => $notice_id ) );
 
 			return false;
 		}
@@ -463,7 +463,7 @@ abstract class Provider {
 		$value = json_decode( $value, true );
 
 		if ( empty( $value ) ) {
-			$this->as3cf->notices->add_notice( __( 'Given Key File Path does not contain valid JSON.', 'aws-s3-integration' ), array( 'type' => 'error', 'only_show_in_settings' => true, 'only_show_on_tab' => 'media', 'custom_id' => $notice_id ) );
+			$this->as3i->notices->add_notice( __( 'Given Key File Path does not contain valid JSON.', 'aws-s3-integration' ), array( 'type' => 'error', 'only_show_in_settings' => true, 'only_show_on_tab' => 'media', 'custom_id' => $notice_id ) );
 
 			return false;
 		}
@@ -489,7 +489,7 @@ abstract class Provider {
 	 * @return string|false Constant name if defined, otherwise false
 	 */
 	public static function key_file_path_constant() {
-		return AS3CF_Utils::get_first_defined_constant( static::$key_file_path_constants );
+		return as3i_Utils::get_first_defined_constant( static::$key_file_path_constants );
 	}
 
 	/**
@@ -518,7 +518,7 @@ abstract class Provider {
 	 * @return string
 	 */
 	public function get_domain() {
-		return apply_filters( 'as3cf_' . static::$provider_key_name . '_' . static::$service_key_name . '_domain', $this->default_domain );
+		return apply_filters( 'as3i_' . static::$provider_key_name . '_' . static::$service_key_name . '_domain', $this->default_domain );
 	}
 
 	/**
@@ -529,7 +529,7 @@ abstract class Provider {
 	public function get_regions() {
 		$regions = apply_filters( static::$provider_key_name . '_get_regions', $this->regions ); // Backwards compatibility, e.g. 'aws_get_regions'.
 
-		return apply_filters( 'as3cf_' . static::$provider_key_name . '_get_regions', $regions );
+		return apply_filters( 'as3i_' . static::$provider_key_name . '_get_regions', $regions );
 	}
 
 	/**
@@ -576,7 +576,7 @@ abstract class Provider {
 	 */
 	private function _init_client( Array $args ) {
 		if ( $this->needs_access_keys() ) {
-			throw new Exception( sprintf( __( 'You must first <a href="%s">set your access keys</a>.', 'aws-s3-integration' ), $this->as3cf->get_plugin_page_url() . '#settings' ) );
+			throw new Exception( sprintf( __( 'You must first <a href="%s">set your access keys</a>.', 'aws-s3-integration' ), $this->as3i->get_plugin_page_url() . '#settings' ) );
 		}
 
 		if ( is_null( $this->client ) ) {
@@ -607,7 +607,7 @@ abstract class Provider {
 
 			// Add credentials and given args to default client args and then let user override.
 			$args = array_merge( $this->default_client_args(), $args );
-			$args = apply_filters( 'as3cf_' . static::$provider_key_name . '_init_client_args', $this->init_client_args( $args ) );
+			$args = apply_filters( 'as3i_' . static::$provider_key_name . '_init_client_args', $this->init_client_args( $args ) );
 			$args = apply_filters( static::$provider_key_name . '_get_client_args', $args ); // Backwards compatibility, e.g. 'aws_get_client_args'.
 
 			$this->client = $this->init_client( $args );
@@ -630,7 +630,7 @@ abstract class Provider {
 
 		$this->_init_client( $args );
 
-		$args = apply_filters( 'as3cf_' . static::$provider_key_name . '_' . static::$service_key_name . '_client_args', $this->init_service_client_args( $args ) );
+		$args = apply_filters( 'as3i_' . static::$provider_key_name . '_' . static::$service_key_name . '_client_args', $this->init_service_client_args( $args ) );
 
 		$this->client = $this->init_service_client( $args );
 
@@ -653,13 +653,13 @@ abstract class Provider {
 				$client      = $region['provider_client'];
 				$region_keys = $client->list_keys( $region['locations'] );
 			} catch ( \Exception $e ) {
-				AS3CF_Error::log( get_class( $e ) . ' exception caught when executing list_keys: ' . $e->getMessage() );
+				as3i_Error::log( get_class( $e ) . ' exception caught when executing list_keys: ' . $e->getMessage() );
 				continue;
 			}
 
 			if ( ! empty( $region_keys ) ) {
 				foreach ( $region_keys as $attachment_id => $found_keys ) {
-					$keys[ $attachment_id ] = AS3CF_Utils::validate_attachment_keys( $attachment_id, $found_keys );
+					$keys[ $attachment_id ] = as3i_Utils::validate_attachment_keys( $attachment_id, $found_keys );
 				}
 			}
 		}
@@ -700,7 +700,7 @@ abstract class Provider {
 		 *
 		 * @return string
 		 */
-		return apply_filters( 'as3cf_' . static::$provider_key_name . '_' . static::$service_key_name . '_url_prefix', $this->url_prefix( $region, $expires ), $region, $expires );
+		return apply_filters( 'as3i_' . static::$provider_key_name . '_' . static::$service_key_name . '_url_prefix', $this->url_prefix( $region, $expires ), $region, $expires );
 	}
 
 	/**
@@ -716,15 +716,15 @@ abstract class Provider {
 	 */
 	public function get_url_domain( $bucket, $region = '', $expires = null, $args = array(), $preview = false ) {
 		if ( ! isset( $args['cloudfront'] ) ) {
-			$args['cloudfront'] = $this->as3cf->get_setting( 'cloudfront' );
+			$args['cloudfront'] = $this->as3i->get_setting( 'cloudfront' );
 		}
 
 		if ( ! isset( $args['domain'] ) ) {
-			$args['domain'] = $this->as3cf->get_setting( 'domain' );
+			$args['domain'] = $this->as3i->get_setting( 'domain' );
 		}
 
 		if ( ! isset( $args['force-https'] ) ) {
-			$args['force-https'] = $this->as3cf->use_ssl( $this->as3cf->get_setting( 'force-https' ) );
+			$args['force-https'] = $this->as3i->use_ssl( $this->as3i->get_setting( 'force-https' ) );
 		}
 
 		$prefix = $this->url_prefix( $region, $expires );
@@ -732,7 +732,7 @@ abstract class Provider {
 		$domain = empty( $prefix ) ? $domain : $prefix . '.' . $domain;
 
 		return apply_filters(
-			'as3cf_' . static::$provider_key_name . '_' . static::$service_key_name . '_url_domain',
+			'as3i_' . static::$provider_key_name . '_' . static::$service_key_name . '_url_domain',
 			$this->url_domain( $domain, $bucket, $region, $expires, $args, $preview ),
 			$bucket,
 			$region,
@@ -752,12 +752,12 @@ abstract class Provider {
 	 */
 	public function get_console_url( $bucket = '', $prefix = '' ) {
 		if ( '' !== $prefix ) {
-			$prefix = $this->get_console_url_prefix_param() . apply_filters( 'as3cf_' . static::$provider_key_name . '_' . static::$service_key_name . '_console_url_prefix_value', $prefix );
+			$prefix = $this->get_console_url_prefix_param() . apply_filters( 'as3i_' . static::$provider_key_name . '_' . static::$service_key_name . '_console_url_prefix_value', $prefix );
 		}
 
-		$suffix = apply_filters( 'as3cf_' . static::$provider_key_name . '_' . static::$service_key_name . '_console_url_suffix_param', $this->get_console_url_suffix_param( $bucket, $prefix ) );
+		$suffix = apply_filters( 'as3i_' . static::$provider_key_name . '_' . static::$service_key_name . '_console_url_suffix_param', $this->get_console_url_suffix_param( $bucket, $prefix ) );
 
-		return apply_filters( 'as3cf_' . static::$provider_key_name . '_' . static::$service_key_name . '_console_url', $this->console_url ) . $bucket . $prefix . $suffix;
+		return apply_filters( 'as3i_' . static::$provider_key_name . '_' . static::$service_key_name . '_console_url', $this->console_url ) . $bucket . $prefix . $suffix;
 	}
 
 	/**
@@ -766,7 +766,7 @@ abstract class Provider {
 	 * @return string
 	 */
 	public function get_console_url_prefix_param() {
-		return apply_filters( 'as3cf_' . static::$provider_key_name . '_' . static::$service_key_name . '_console_url_prefix_param', $this->console_url_prefix_param );
+		return apply_filters( 'as3i_' . static::$provider_key_name . '_' . static::$service_key_name . '_console_url_prefix_param', $this->console_url_prefix_param );
 	}
 
 	/**

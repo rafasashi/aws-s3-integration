@@ -1,9 +1,9 @@
 <?php
 
-namespace DeliciousBrains\WP_Offload_Media\Items;
+namespace Recuweb\AWS_S3_Integration\Items;
 
-use Amazon_S3_And_CloudFront;
-use AS3CF_Utils;
+use AWS_s3_Integration;
+use as3i_Utils;
 use WP_Error;
 
 abstract class Item {
@@ -90,9 +90,9 @@ abstract class Item {
 		static $group;
 
 		if ( empty( $group ) ) {
-			/** @var Amazon_S3_And_CloudFront $as3cf */
-			global $as3cf;
-			$group = trim( '' . apply_filters( 'as3cf_object_cache_group', $as3cf->get_plugin_prefix() ) );
+			/** @var AWS_s3_Integration $as3i */
+			global $as3i;
+			$group = trim( '' . apply_filters( 'as3i_object_cache_group', $as3i->get_plugin_prefix() ) );
 		}
 
 		return $group;
@@ -358,20 +358,20 @@ abstract class Item {
 	protected static function items_table() {
 		global $wpdb;
 
-		/* @var Amazon_S3_And_CloudFront $as3cf */
-		global $as3cf;
+		/* @var AWS_s3_Integration $as3i */
+		global $as3i;
 
 		$table_name = $wpdb->get_blog_prefix() . static::ITEMS_TABLE;
-
+		
 		if ( empty( self::$checked_table_exists[ $table_name ] ) ) {
 			self::$checked_table_exists[ $table_name ] = true;
 
-			$schema_version = get_option( $as3cf->get_plugin_prefix() . '_schema_version', '0.0.0' );
+			$schema_version = get_option( $as3i->get_plugin_prefix() . '_schema_version', '0.0.0' );
 
-			if ( version_compare( $schema_version, $as3cf->get_plugin_version(), '<' ) ) {
+			if ( version_compare( $schema_version, $as3i->get_plugin_version(), '<' ) ) {
 				self::install_table( $table_name );
 
-				update_option( $as3cf->get_plugin_prefix() . '_schema_version', $as3cf->get_plugin_version() );
+				update_option( $as3i->get_plugin_prefix() . '_schema_version', $as3i->get_plugin_version() );
 			}
 		}
 
@@ -840,8 +840,8 @@ abstract class Item {
 	public static function get_source_id_by_remote_url( $url ) {
 		global $wpdb;
 
-		$parts = AS3CF_Utils::parse_url( $url );
-		$path  = AS3CF_Utils::decode_filename_in_path( ltrim( $parts['path'], '/' ) );
+		$parts = as3i_Utils::parse_url( $url );
+		$path  = as3i_Utils::decode_filename_in_path( ltrim( $parts['path'], '/' ) );
 
 		// Remove the first directory to cater for bucket in path domain settings.
 		if ( false !== strpos( $path, '/' ) ) {
@@ -873,18 +873,18 @@ abstract class Item {
 		$path = ltrim( $parts['path'], '/' );
 
 		foreach ( $results as $result ) {
-			$as3cf_item = static::create( $result );
+			$as3i_item = static::create( $result );
 
 			// If item's bucket matches first segment of URL path, remove it from URL path before checking match.
-			if ( 0 === strpos( $path, trailingslashit( $as3cf_item->bucket() ) ) ) {
-				$match_path = ltrim( substr_replace( $path, '', 0, strlen( $as3cf_item->bucket() ) ), '/' );
+			if ( 0 === strpos( $path, trailingslashit( $as3i_item->bucket() ) ) ) {
+				$match_path = ltrim( substr_replace( $path, '', 0, strlen( $as3i_item->bucket() ) ), '/' );
 			} else {
 				$match_path = $path;
 			}
 
 			// Exact match, return ID.
-			if ( $as3cf_item->path() === $match_path || $as3cf_item->original_path() === $match_path ) {
-				return $as3cf_item->source_id();
+			if ( $as3i_item->path() === $match_path || $as3i_item->original_path() === $match_path ) {
+				return $as3i_item->source_id();
 			}
 		}
 

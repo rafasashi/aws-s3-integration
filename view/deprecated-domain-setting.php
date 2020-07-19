@@ -24,7 +24,7 @@ $tr_class = ( isset( $tr_class ) ) ? $tr_class : ''; ?>
 
 		echo $setting_msg;
 		?>
-		<div class="as3cf-domain as3cf-radio-group">
+		<div class="as3i-domain as3i-radio-group">
 			<label class="subdomain-wrap <?php echo $subdomain_class; // xss ok?>">
 				<input type="radio" name="domain" value="subdomain" <?php checked( $domain, 'subdomain' ); ?> <?php echo $subdomain_disabled; // xss ok ?>>
 				<?php _e( 'Bucket name as subdomain', 'aws-s3-integration' ); ?>
@@ -43,9 +43,9 @@ $tr_class = ( isset( $tr_class ) ) ? $tr_class : ''; ?>
 			<label>
 				<input id="cloudfront" type="radio" name="domain" value="cloudfront" <?php checked( $domain, 'cloudfront' ); ?> <?php echo $disabled_attr; ?>>
 				<?php _e( 'CloudFront or custom domain', 'aws-s3-integration' ); ?>
-				<p class="as3cf-setting cloudfront <?php echo ( 'cloudfront' == $domain ) ? '' : 'hide'; // xss ok ?>">
+				<p class="as3i-setting cloudfront <?php echo ( 'cloudfront' == $domain ) ? '' : 'hide'; // xss ok ?>">
 					<input type="text" name="cloudfront" value="<?php echo esc_attr( $this->get_setting( 'cloudfront' ) ); ?>" size="30" <?php echo $disabled_attr; ?> />
-					<span class="as3cf-validation-error" style="display: none;">
+					<span class="as3i-validation-error" style="display: none;">
 						<?php _e( 'Invalid character. Letters, numbers, periods and hyphens are allowed.', 'aws-s3-integration' ); ?>
 					</span>
 				</p>

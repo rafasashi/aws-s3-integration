@@ -1,29 +1,29 @@
 <?php
 
-class AS3CF_Notices {
+class as3i_Notices {
 
 	/**
-	 * @var AS3CF_Notices
+	 * @var as3i_Notices
 	 */
 	protected static $instance = null;
 
 	/**
-	 * @var Amazon_S3_And_CloudFront
+	 * @var AWS_s3_Integration
 	 */
-	private $as3cf;
+	private $as3i;
 
 	/**
 	 * Make this class a singleton
 	 *
 	 * Use this instead of __construct()
 	 *
-	 * @param Amazon_S3_And_CloudFront $as3cf
+	 * @param AWS_s3_Integration $as3i
 	 *
-	 * @return AS3CF_Notices
+	 * @return as3i_Notices
 	 */
-	public static function get_instance( $as3cf ) {
+	public static function get_instance( $as3i ) {
 		if ( ! isset( static::$instance ) ) {
-			static::$instance = new static( $as3cf );
+			static::$instance = new static( $as3i );
 		}
 
 		return static::$instance;
@@ -32,16 +32,16 @@ class AS3CF_Notices {
 	/**
 	 * Constructor
 	 *
-	 * @param Amazon_S3_And_CloudFront $as3cf
+	 * @param AWS_s3_Integration $as3i
 	 */
-	protected function __construct( $as3cf ) {
-		$this->as3cf = $as3cf;
+	protected function __construct( $as3i ) {
+		$this->as3i = $as3i;
 
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		add_action( 'network_admin_notices', array( $this, 'admin_notices' ) );
-		add_action( 'as3cf_pre_tab_render', array( $this, 'admin_notices' ) );
+		add_action( 'as3i_pre_tab_render', array( $this, 'admin_notices' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_notice_scripts' ) );
-		add_action( 'wp_ajax_as3cf-dismiss-notice', array( $this, 'ajax_dismiss_notice' ) );
+		add_action( 'wp_ajax_as3i-dismiss-notice', array( $this, 'ajax_dismiss_notice' ) );
 	}
 
 	/**
@@ -66,9 +66,9 @@ class AS3CF_Notices {
 			'inline'                => false,
 			'flash'                 => true,
 			'only_show_to_user'     => true, // The user who has initiated an action resulting in notice. Otherwise show to all users.
-			'user_capabilities'     => array( 'as3cf_compat_check', 'check_capabilities' ), // A user with these capabilities can see the notice. Can be a callback with the first array item the name of global class instance.
+			'user_capabilities'     => array( 'as3i_compat_check', 'check_capabilities' ), // A user with these capabilities can see the notice. Can be a callback with the first array item the name of global class instance.
 			'only_show_in_settings' => false,
-			'only_show_on_tab'      => false, // Only show on a specific WP Offload Media tab.
+			'only_show_on_tab'      => false, // Only show on a specific AWS S3 Integration tab.
 			'custom_id'             => '',
 			'auto_p'                => true, // Automatically wrap the message in a <p>
 			'class'                 => '', // Extra classes for the notice
@@ -86,7 +86,7 @@ class AS3CF_Notices {
 		if ( $notice['custom_id'] ) {
 			$notice['id'] = $notice['custom_id'];
 		} else {
-			$notice['id'] = apply_filters( 'as3cf_notice_id_prefix', 'as3cf-notice-' ) . sha1( trim( $notice['message'] ) . trim( $notice['lock_key'] ) );
+			$notice['id'] = apply_filters( 'as3i_notice_id_prefix', 'as3i-notice-' ) . sha1( trim( $notice['message'] ) . trim( $notice['lock_key'] ) );
 		}
 
 		if ( isset( $notice['only_show_on_tab'] ) && false !== $notice['only_show_on_tab'] ) {
@@ -107,9 +107,9 @@ class AS3CF_Notices {
 		$user_id = get_current_user_id();
 
 		if ( $notice['only_show_to_user'] ) {
-			$notices = get_user_meta( $user_id, 'as3cf_notices', true );
+			$notices = get_user_meta( $user_id, 'as3i_notices', true );
 		} else {
-			$notices = get_site_transient( 'as3cf_notices' );
+			$notices = get_site_transient( 'as3i_notices' );
 		}
 
 		if ( ! is_array( $notices ) ) {
@@ -120,9 +120,9 @@ class AS3CF_Notices {
 			$notices[ $notice['id'] ] = $notice;
 
 			if ( $notice['only_show_to_user'] ) {
-				update_user_meta( $user_id, 'as3cf_notices', $notices );
+				update_user_meta( $user_id, 'as3i_notices', $notices );
 			} else {
-				set_site_transient( 'as3cf_notices', $notices );
+				set_site_transient( 'as3i_notices', $notices );
 			}
 		}
 	}
@@ -136,9 +136,9 @@ class AS3CF_Notices {
 		$user_id = get_current_user_id();
 
 		if ( $notice['only_show_to_user'] ) {
-			$notices = get_user_meta( $user_id, 'as3cf_notices', true );
+			$notices = get_user_meta( $user_id, 'as3i_notices', true );
 		} else {
-			$notices = get_site_transient( 'as3cf_notices' );
+			$notices = get_site_transient( 'as3i_notices' );
 		}
 
 		if ( ! is_array( $notices ) ) {
@@ -149,9 +149,9 @@ class AS3CF_Notices {
 			unset( $notices[ $notice['id'] ] );
 
 			if ( $notice['only_show_to_user'] ) {
-				$this->update_user_meta( $user_id, 'as3cf_notices', $notices );
+				$this->update_user_meta( $user_id, 'as3i_notices', $notices );
 			} else {
-				$this->set_site_transient( 'as3cf_notices', $notices );
+				$this->set_site_transient( 'as3i_notices', $notices );
 			}
 		}
 	}
@@ -179,16 +179,16 @@ class AS3CF_Notices {
 		$notice = $this->find_notice_by_id( $notice_id );
 		if ( $notice ) {
 			if ( $notice['only_show_to_user'] ) {
-				$notices = get_user_meta( $user_id, 'as3cf_notices', true );
+				$notices = get_user_meta( $user_id, 'as3i_notices', true );
 				unset( $notices[ $notice['id'] ] );
 
-				$this->update_user_meta( $user_id, 'as3cf_notices', $notices );
+				$this->update_user_meta( $user_id, 'as3i_notices', $notices );
 			} else {
 				$dismissed_notices = $this->get_dismissed_notices( $user_id );
 
 				if ( ! in_array( $notice['id'], $dismissed_notices ) ) {
 					$dismissed_notices[] = $notice['id'];
-					update_user_meta( $user_id, 'as3cf_dismissed_notices', $dismissed_notices );
+					update_user_meta( $user_id, 'as3i_dismissed_notices', $dismissed_notices );
 				}
 			}
 		}
@@ -206,7 +206,7 @@ class AS3CF_Notices {
 			$user_id = get_current_user_id();
 		}
 
-		$dismissed_notices = get_user_meta( $user_id, 'as3cf_dismissed_notices', true );
+		$dismissed_notices = get_user_meta( $user_id, 'as3i_dismissed_notices', true );
 		if ( ! is_array( $dismissed_notices ) ) {
 			$dismissed_notices = array();
 		}
@@ -233,7 +233,7 @@ class AS3CF_Notices {
 		$key = array_search( $notice_id, $dismissed_notices );
 		unset( $dismissed_notices[ $key ] );
 
-		$this->update_user_meta( $user_id, 'as3cf_dismissed_notices', $dismissed_notices );
+		$this->update_user_meta( $user_id, 'as3i_dismissed_notices', $dismissed_notices );
 	}
 
 	/**
@@ -243,7 +243,7 @@ class AS3CF_Notices {
 	 */
 	public function undismiss_notice_for_all( $notice_id ) {
 		$args = array(
-			'meta_key'     => 'as3cf_dismissed_notices',
+			'meta_key'     => 'as3i_dismissed_notices',
 			'meta_value'   => $notice_id,
 			'meta_compare' => 'LIKE',
 		);
@@ -265,12 +265,12 @@ class AS3CF_Notices {
 	public function find_notice_by_id( $notice_id ) {
 		$user_id = get_current_user_id();
 
-		$user_notices = get_user_meta( $user_id, 'as3cf_notices', true );
+		$user_notices = get_user_meta( $user_id, 'as3i_notices', true );
 		if ( ! is_array( $user_notices ) ) {
 			$user_notices = array();
 		}
 
-		$global_notices = get_site_transient( 'as3cf_notices' );
+		$global_notices = get_site_transient( 'as3i_notices' );
 		if ( ! is_array( $global_notices ) ) {
 			$global_notices = array();
 		}
@@ -295,12 +295,12 @@ class AS3CF_Notices {
 		}
 
 		$user_id           = get_current_user_id();
-		$dismissed_notices = get_user_meta( $user_id, 'as3cf_dismissed_notices', true );
+		$dismissed_notices = get_user_meta( $user_id, 'as3i_dismissed_notices', true );
 		if ( ! is_array( $dismissed_notices ) ) {
 			$dismissed_notices = array();
 		}
 
-		$user_notices = get_user_meta( $user_id, 'as3cf_notices', true );
+		$user_notices = get_user_meta( $user_id, 'as3i_notices', true );
 		$user_notices = $this->cleanup_corrupt_user_notices( $user_id, $user_notices );
 		if ( is_array( $user_notices ) && ! empty( $user_notices ) ) {
 			foreach ( $user_notices as $notice ) {
@@ -308,7 +308,7 @@ class AS3CF_Notices {
 			}
 		}
 
-		$global_notices = get_site_transient( 'as3cf_notices' );
+		$global_notices = get_site_transient( 'as3i_notices' );
 		if ( is_array( $global_notices ) && ! empty( $global_notices ) ) {
 			foreach ( $global_notices as $notice ) {
 				$this->maybe_show_notice( $notice, $dismissed_notices, $tab );
@@ -335,7 +335,7 @@ class AS3CF_Notices {
 				// Corrupt, remove
 				unset( $notices[ $key ] );
 
-				$this->update_user_meta( $user_id, 'as3cf_notices', $notices );
+				$this->update_user_meta( $user_id, 'as3i_notices', $notices );
 			}
 		}
 
@@ -351,7 +351,7 @@ class AS3CF_Notices {
 	 */
 	protected function maybe_show_notice( $notice, $dismissed_notices, $tab ) {
 		$screen = get_current_screen();
-		if ( $notice['only_show_in_settings'] && false === strpos( strval( $screen->id ), $this->as3cf->hook_suffix ) ) {
+		if ( $notice['only_show_in_settings'] && false === strpos( strval( $screen->id ), $this->as3i->hook_suffix ) ) {
 			return;
 		}
 
@@ -371,7 +371,7 @@ class AS3CF_Notices {
 			return;
 		}
 
-		if ( ! empty( $notice['lock_key'] ) && class_exists( 'AS3CF_Tool' ) && AS3CF_Tool::lock_key_exists( $notice['lock_key'] ) ) {
+		if ( ! empty( $notice['lock_key'] ) && class_exists( 'as3i_Tool' ) && as3i_Tool::lock_key_exists( $notice['lock_key'] ) ) {
 			return;
 		}
 
@@ -383,7 +383,7 @@ class AS3CF_Notices {
 			call_user_func( $notice['pre_render_callback'] );
 		}
 
-		$this->as3cf->render_view( 'notice', $notice );
+		$this->as3i->render_view( 'notice', $notice );
 
 		if ( $notice['flash'] ) {
 			$this->remove_notice( $notice );
@@ -423,15 +423,15 @@ class AS3CF_Notices {
 	 * Enqueue notice scripts in the admin
 	 */
 	public function enqueue_notice_scripts() {
-		$this->as3cf->enqueue_style( 'as3cf-notice', 'assets/css/notice' );
-		$this->as3cf->enqueue_script( 'as3cf-notice', 'assets/js/notice', array( 'jquery' ) );
+		$this->as3i->enqueue_style( 'as3i-notice', 'assets/css/notice' );
+		$this->as3i->enqueue_script( 'as3i-notice', 'assets/js/notice', array( 'jquery' ) );
 
-		wp_localize_script( 'as3cf-notice', 'as3cf_notice', array(
+		wp_localize_script( 'as3i-notice', 'as3i_notice', array(
 			'strings' => array(
 				'dismiss_notice_error' => __( 'Error dismissing notice.', 'aws-s3-integration' ),
 			),
 			'nonces'  => array(
-				'dismiss_notice' => wp_create_nonce( 'as3cf-dismiss-notice' ),
+				'dismiss_notice' => wp_create_nonce( 'as3i-dismiss-notice' ),
 			),
 		) );
 	}
@@ -440,11 +440,11 @@ class AS3CF_Notices {
 	 * Handler for AJAX request to dismiss a notice
 	 */
 	public function ajax_dismiss_notice() {
-		$this->as3cf->verify_ajax_request();
+		$this->as3i->verify_ajax_request();
 
 		if ( ! isset( $_POST['notice_id'] ) || ! ( $notice_id = sanitize_text_field( $_POST['notice_id'] ) ) ) {
 			$out = array( 'error' => __( 'Invalid notice ID.', 'aws-s3-integration' ) );
-			$this->as3cf->end_ajax( $out );
+			$this->as3i->end_ajax( $out );
 		}
 
 		$this->dismiss_notice( $notice_id );
@@ -452,7 +452,7 @@ class AS3CF_Notices {
 		$out = array(
 			'success' => '1',
 		);
-		$this->as3cf->end_ajax( $out );
+		$this->as3i->end_ajax( $out );
 	}
 
 	/**

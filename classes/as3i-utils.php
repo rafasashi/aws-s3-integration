@@ -4,27 +4,27 @@
  *
  * @package     aws-s3-integration
  * @subpackage  Classes/Utils
- * @copyright   Copyright (c) 2015, Delicious Brains
+ * @copyright   Copyright (c), Recuweb
  * @license     http://opensource.org/licenses/gpl-2.0.php GNU Public License
  */
 
 // Exit if accessed directly
-use DeliciousBrains\WP_Offload_Media\Items\Media_Library_Item;
+use Recuweb\AWS_S3_Integration\Items\Media_Library_Item;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'AS3CF_Utils' ) ) {
+if ( ! class_exists( 'as3i_Utils' ) ) {
 
 	/**
-	 * AS3CF_Utils Class
+	 * as3i_Utils Class
 	 *
 	 * This class contains utility functions that need to be available
 	 * across the Pro plugin codebase
 	 *
 	 */
-	class AS3CF_Utils {
+	class as3i_Utils {
 
 		/**
 		 * Get post ID.
@@ -225,7 +225,7 @@ if ( ! class_exists( 'AS3CF_Utils' ) ) {
 			}
 
 			// Allow other processes to add files to be uploaded
-			$paths = apply_filters( 'as3cf_attachment_file_paths', $paths, $attachment_id, $meta );
+			$paths = apply_filters( 'as3i_attachment_file_paths', $paths, $attachment_id, $meta );
 
 			// Remove duplicates
 			$paths = array_unique( $paths );
@@ -262,12 +262,12 @@ if ( ! class_exists( 'AS3CF_Utils' ) ) {
 		 * Get an attachment's edited S3 keys.
 		 *
 		 * @param int                $attachment_id
-		 * @param Media_Library_Item $as3cf_item
+		 * @param Media_Library_Item $as3i_item
 		 *
 		 * @return array
 		 */
-		public static function get_attachment_edited_keys( $attachment_id, Media_Library_Item $as3cf_item ) {
-			$prefix = trailingslashit( $as3cf_item->normalized_path_dir() );
+		public static function get_attachment_edited_keys( $attachment_id, Media_Library_Item $as3i_item ) {
+			$prefix = trailingslashit( $as3i_item->normalized_path_dir() );
 			$paths  = self::get_attachment_edited_file_paths( $attachment_id );
 			$paths  = array_map( function ( $path ) use ( $prefix ) {
 				return array( 'Key' => $prefix . wp_basename( $path ) );
@@ -318,7 +318,7 @@ if ( ! class_exists( 'AS3CF_Utils' ) ) {
 		 *
 		 * @return string
 		 */
-		public static function dbrains_link( $url, $text ) {
+		public static function rew_link( $url, $text ) {
 			return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( $text ) );
 		}
 

@@ -15,7 +15,7 @@ var test = {};
 		events: function() {
 			return _.extend( {}, wpAttachmentDetailsTwoColumn.prototype.events, {
 				'click .local-warning': 'confirmS3Removal',
-				'click #as3cfpro-toggle-acl': 'toggleACL'
+				'click #as3ipro-toggle-acl': 'toggleACL'
 			} );
 		},
 
@@ -26,9 +26,9 @@ var test = {};
 		},
 
 		fetchS3Details: function( id ) {
-			wp.ajax.send( 'as3cf_get_attachment_provider_details', {
+			wp.ajax.send( 'as3i_get_attachment_provider_details', {
 				data: {
-					_nonce: as3cf_media.nonces.get_attachment_provider_details,
+					_nonce: as3i_media.nonces.get_attachment_provider_details,
 					id: id
 				}
 			} ).done( _.bind( this.renderView, this ) );
@@ -79,7 +79,7 @@ var test = {};
 						value = response.provider_object[ key ][ 'name' ];
 
 						if ( response.acl_toggle ) {
-							var acl_template = _.template( '<a href="#" id="as3cfpro-toggle-acl" title="<%= title %>" data-currentACL="<%= acl %>"><%= value %></a>' );
+							var acl_template = _.template( '<a href="#" id="as3ipro-toggle-acl" title="<%= title %>" data-currentACL="<%= acl %>"><%= value %></a>' );
 
 							value = acl_template( {
 								title: response.provider_object[ key ][ 'title' ],
@@ -91,7 +91,7 @@ var test = {};
 
 					html += template( {
 						key: key,
-						label: as3cf_media.strings[ key ],
+						label: as3i_media.strings[ key ],
 						value: value
 					} );
 				}
@@ -101,7 +101,7 @@ var test = {};
 		},
 
 		confirmS3Removal: function( event ) {
-			if ( ! confirm( as3cfpro_media.strings.local_warning ) ) {
+			if ( ! confirm( as3ipro_media.strings.local_warning ) ) {
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				return false;
@@ -111,20 +111,20 @@ var test = {};
 		toggleACL: function( event ) {
 			event.preventDefault();
 
-			var toggle = $( '#as3cfpro-toggle-acl' );
+			var toggle = $( '#as3ipro-toggle-acl' );
 			var currentACL = toggle.data( 'currentacl' );
-			var newACL = as3cfpro_media.settings.private_acl;
+			var newACL = as3ipro_media.settings.private_acl;
 
 			toggle.hide();
-			toggle.after( '<span id="as3cfpro-updating">' + as3cfpro_media.strings.updating_acl + '</span>' );
+			toggle.after( '<span id="as3ipro-updating">' + as3ipro_media.strings.updating_acl + '</span>' );
 
-			if ( currentACL === as3cfpro_media.settings.private_acl ) {
-				newACL = as3cfpro_media.settings.default_acl;
+			if ( currentACL === as3ipro_media.settings.private_acl ) {
+				newACL = as3ipro_media.settings.default_acl;
 			}
 
-			wp.ajax.send( 'as3cfpro_update_acl', {
+			wp.ajax.send( 'as3ipro_update_acl', {
 				data: {
-					_ajax_nonce: as3cfpro_media.nonces.singular_update_acl,
+					_ajax_nonce: as3ipro_media.nonces.singular_update_acl,
 					id: this.model.get( 'id' ),
 					acl: newACL
 				}
@@ -134,9 +134,9 @@ var test = {};
 		},
 
 		renderACLError: function() {
-			$( '#as3cfpro-updating' ).remove();
-			$( '#as3cfpro-toggle-acl' ).show();
-			alert( as3cfpro_media.strings.change_acl_error );
+			$( '#as3ipro-updating' ).remove();
+			$( '#as3ipro-toggle-acl' ).show();
+			alert( as3ipro_media.strings.change_acl_error );
 		},
 
 		updateACL: function( response ) {
@@ -149,9 +149,9 @@ var test = {};
 			this.model.set( 'url', response.url );
 			this.render();
 
-			var toggle = $( '#as3cfpro-toggle-acl' );
+			var toggle = $( '#as3ipro-toggle-acl' );
 
-			$( '#as3cfpro-updating' ).remove();
+			$( '#as3ipro-updating' ).remove();
 
 			toggle.text( response.acl_display );
 			toggle.attr( 'title', response.title );
