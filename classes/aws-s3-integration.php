@@ -2682,8 +2682,8 @@ class AWS_s3_Integration extends as3i_Plugin_Base {
 		
 		$this->hook_suffix = add_submenu_page(
 			'acs_plugin_panel',
-			'S3 & CloudFront',
-			'S3 & CloudFront',
+			'S3 Media Library',
+			'S3 Media Library',
 			'manage_options',
 			$this->plugin_slug,
 			array( $this, 'render_page' )
