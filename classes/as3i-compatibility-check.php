@@ -46,7 +46,7 @@ if ( ! class_exists( 'as3i_Compatibility_Check' ) ) {
 		protected $parent_plugin_name;
 
 		/**
-		 * @var null|string The key of the required parent plugin, e.g. amazon-web-services
+		 * @var null|string The key of the required parent plugin, e.g. amazon-cloud-services
 		 */
 		protected $parent_plugin_slug;
 
@@ -117,6 +117,7 @@ if ( ! class_exists( 'as3i_Compatibility_Check' ) ) {
 		 * @return bool
 		 */
 		function is_compatible() {
+			
 			$compatible = $this->get_error_msg() ? false : true;
 
 			$GLOBALS['aws_meta'][ $this->plugin_slug ]['compatible'] = $compatible;

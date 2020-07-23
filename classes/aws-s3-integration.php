@@ -139,7 +139,6 @@ class AWS_s3_Integration extends as3i_Plugin_Base {
 		// Plugin setup
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'network_admin_menu', array( $this, 'admin_menu' ) );
-		add_action( 'aws_admin_menu', array( $this, 'aws_admin_menu' ) );
 		add_filter( 'plugin_action_links', array( $this, 'plugin_actions_settings_link' ), 10, 2 );
 		add_filter( 'network_admin_plugin_action_links', array( $this, 'plugin_actions_settings_link' ), 10, 2 );
 		add_filter( 'pre_get_space_used', array( $this, 'multisite_get_space_used' ) );
@@ -2695,21 +2694,6 @@ class AWS_s3_Integration extends as3i_Plugin_Base {
 	}
 
 	/**
-	 * Add the settings page to the top-level AWS menu item for backwards compatibility.
-	 *
-	 * @param \Amazon_Web_Services $aws Plugin class instance from the amazon-web-services plugin.
-	 */
-	public function aws_admin_menu( $aws ) {
-		$aws->add_page(
-			$this->get_plugin_page_title(),
-			$this->get_plugin_menu_title(),
-			'manage_options',
-			$this->plugin_slug,
-			array( $this, 'render_page' )
-		);
-	}
-
-	/**
 	 * What is the default provider for legacy data?
 	 *
 	 * @return string
@@ -4873,57 +4857,6 @@ class AWS_s3_Integration extends as3i_Plugin_Base {
 		}
 
 		settings_errors();
-	}
-
-	/**
-	 * Migrate access keys from AWS database setting to this plugin's settings record and raise any notices.
-	 */
-	private function handle_aws_access_key_migration() {
-		
-		add_action( 'aws_access_key_form_header', array( $this, 'handle_aws_access_key_form_header' ) );
-
-		if ( is_plugin_active( 'amazon-web-services/amazon-web-services.php' ) ) {
-			$message = sprintf(
-				__( '<strong>Amazon Web Services Plugin No Longer Required</strong> &mdash; As of version 1.6 of AWS S3 Integration, the <a href="%1$s">Amazon Web Services</a> plugin is no longer required. We have removed the dependency by bundling a small portion of the AWS SDK into AWS S3 Integration. As long as none of your other active plugins or themes depend on the Amazon Web Services plugin, it should be safe to deactivate and delete it. %2$s', 'aws-s3-integration' ),
-				'https://wordpress.org/plugins/amazon-web-services/',
-				''
-			);
-			$args    = array(
-				'only_show_to_user'     => false,
-				'only_show_in_settings' => true,
-				'custom_id'             => 'aws-plugin-no-longer-required',
-			);
-			$this->notices->add_notice( $message, $args );
-
-			if ( is_a( $this->get_provider(), '\Recuweb\AWS_S3_Integration\Providers\AWS_Provider' ) && $this->get_provider()->needs_access_keys() ) {
-				// Have access keys been defined in still active AWS plugin's database settings?
-				$aws_settings = get_site_option( 'aws_settings' );
-
-				// If both AWS keys set and we already have a bucket set, safe to use the AWS keys.
-				if ( ! empty( $aws_settings['access_key_id'] ) && ! empty( $aws_settings['secret_access_key'] ) && false !== $this->get_setting( 'bucket' ) ) {
-					$this->set_setting( 'access-key-id', $aws_settings['access_key_id'] );
-					$this->set_setting( 'secret-access-key', $aws_settings['secret_access_key'] );
-					$this->save_settings();
-				}
-			}
-		} 
-		else {
-			$this->notices->remove_notice_by_id( 'aws-plugin-no-longer-required' );
-		}
-	}
-
-	/**
-	 * Create message in AWS access key form that this plugin no longer uses those settings.
-	 */
-	public function handle_aws_access_key_form_header() {
-		$notice['message'] = sprintf(
-			__( '<strong>AWS S3 Integration Settings Moved</strong> &mdash; You now define your AWS keys for AWS S3 Integration in the new <a href="%1$s">Settings tab</a>. Saving settings in the form below will have no effect on AWS S3 Integration. %2$s', 'aws-s3-integration' ),
-			$this->get_plugin_page_url( array( 'hash' => 'settings' ) ),
-			''
-		);
-		$notice['inline']  = true;
-
-		$this->render_view( 'notice', $notice );
 	}
 
 	/**

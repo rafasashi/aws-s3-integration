@@ -27,43 +27,38 @@ $as3i_compat_check = new as3i_Compatibility_Check(
  * @throws Exception
  */
 function as3i_init() {
-	if ( class_exists( 'AWS_s3_Integration' ) ) {
-		return;
-	}
-
+	
 	global $as3i_compat_check;
+	
+	if ( method_exists( 'as3i_Compatibility_Check', 'is_plugin_active' ) && $as3i_compat_check->is_plugin_active( 'amazon-cloud-services/amazon-cloud-services.php' ) && $as3i_compat_check->is_compatible() ) {
 
-	if ( method_exists( 'as3i_Compatibility_Check', 'is_plugin_active' ) && $as3i_compat_check->is_plugin_active( 'aws-s3-integration-pro/aws-s3-integration-pro.php' ) ) {
-		// Don't load if pro plugin installed
+		global $as3i;
+		$abspath = dirname( __FILE__ );
+		
+		// Autoloader.
+		require_once $abspath . '/aws-s3-integration-autoloader.php';
+
+		require_once $abspath . '/include/functions.php';
+		require_once $abspath . '/classes/as3i-utils.php';
+		require_once $abspath . '/classes/as3i-error.php';
+		require_once $abspath . '/classes/as3i-filter.php';
+		require_once $abspath . '/classes/filters/as3i-local-to-s3.php';
+		require_once $abspath . '/classes/filters/as3i-s3-to-local.php';
+		require_once $abspath . '/classes/as3i-notices.php';
+		require_once $abspath . '/classes/as3i-plugin-base.php';
+		require_once $abspath . '/classes/as3i-plugin-compatibility.php';
+		require_once $abspath . '/classes/aws-s3-integration.php';
+		
+		new AWS_S3_Integration_Autoloader( 'AWS_S3_Integration', $abspath );
+		
+		$as3i = new AWS_s3_Integration( __FILE__ );
+
+		do_action( 'as3i_init', $as3i );
+	}
+	else{
+		
 		return;
 	}
-
-	if ( ! $as3i_compat_check->is_compatible() ) {
-		return;
-	}
-
-	global $as3i;
-	$abspath = dirname( __FILE__ );
-	
-	// Autoloader.
-	require_once $abspath . '/aws-s3-integration-autoloader.php';
-
-	require_once $abspath . '/include/functions.php';
-	require_once $abspath . '/classes/as3i-utils.php';
-	require_once $abspath . '/classes/as3i-error.php';
-	require_once $abspath . '/classes/as3i-filter.php';
-	require_once $abspath . '/classes/filters/as3i-local-to-s3.php';
-	require_once $abspath . '/classes/filters/as3i-s3-to-local.php';
-	require_once $abspath . '/classes/as3i-notices.php';
-	require_once $abspath . '/classes/as3i-plugin-base.php';
-	require_once $abspath . '/classes/as3i-plugin-compatibility.php';
-	require_once $abspath . '/classes/aws-s3-integration.php';
-	
-	new AWS_S3_Integration_Autoloader( 'AWS_S3_Integration', $abspath );
-	
-	$as3i = new AWS_s3_Integration( __FILE__ );
-
-	do_action( 'as3i_init', $as3i );
 }
 
 add_action( 'init', 'as3i_init' );
