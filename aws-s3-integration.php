@@ -4,7 +4,7 @@ Plugin Name: AWS S3 Integration
 Plugin URI: https://code.recuweb.com/
 Description: Automatically copies media uploads to Amazon S3 for storage and delivery.
 Author: Rafasashi
-Version: 1.0.0
+Version: 1.0.1
 Author URI: https://code.recuweb.com/
 Text Domain: aws-s3-integration
 Domain Path: /lang/
