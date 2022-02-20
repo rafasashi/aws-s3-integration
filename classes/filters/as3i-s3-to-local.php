@@ -171,6 +171,7 @@ class as3i_S3_To_Local extends as3i_Filter {
 	 * @return string
 	 */
 	protected function normalize_replace_value( $url ) {
+		
 		return as3i_Utils::decode_filename_in_path( $url );
 	}
 

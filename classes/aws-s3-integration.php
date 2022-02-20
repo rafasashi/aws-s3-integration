@@ -2408,29 +2408,39 @@ class AWS_s3_Integration extends as3i_Plugin_Base {
 	 * @return string Encoded filename
 	 */
 	public function encode_filename_in_path( $file ) {
+		
 		$url = parse_url( $file );
 
 		if ( ! isset( $url['path'] ) ) {
+			
 			// Can't determine path, return original
 			return $file;
 		}
 
 		if ( isset( $url['query'] ) ) {
+			
 			// Manually strip query string, as passing $url['path'] to basename results in corrupt � characters
+			
 			$file_name = wp_basename( str_replace( '?' . $url['query'], '', $file ) );
-		} else {
+		} 
+		else {
+			
 			$file_name = wp_basename( $file );
 		}
 
 		if ( false !== strpos( $file_name, '%' ) ) {
+			
 			// File name already encoded, return original
+			
 			return $file;
 		}
 
 		$encoded_file_name = rawurlencode( $file_name );
 
 		if ( $file_name === $encoded_file_name ) {
+			
 			// File name doesn't need encoding, return original
+			
 			return $file;
 		}
 

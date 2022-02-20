@@ -32,6 +32,7 @@ abstract class as3i_Plugin_Base {
 	private $defined_settings;
 
 	function __construct( $plugin_file_path ) {
+		
 		$this->plugin_file_path = $plugin_file_path;
 		$this->plugin_dir_path  = rtrim( plugin_dir_path( $plugin_file_path ), '/' );
 		$this->plugin_basename  = plugin_basename( $plugin_file_path );
@@ -94,7 +95,7 @@ abstract class as3i_Plugin_Base {
 	 */
 	public function get_plugin_sdks_dir_path() {
 		
-		return WP_PLUGIN_DIR . '/amazon-cloud-services/sdk/v3/vendor';
+		return dirname($this->plugin_dir_path) . '/amazon-cloud-services/sdk/v3/vendor';
 	}
 
 	/**
@@ -585,10 +586,12 @@ abstract class as3i_Plugin_Base {
 	 * @param bool   $footer
 	 */
 	public function enqueue_script( $handle, $path, $deps = array(), $footer = true ) {
+		
 		$version = $this->get_asset_version();
 		$suffix  = $this->get_asset_suffix();
-
+		
 		$src = plugins_url( $path . $suffix . '.js', $this->plugin_file_path );
+		
 		wp_enqueue_script( $handle, $src, $deps, $version, $footer );
 	}
 

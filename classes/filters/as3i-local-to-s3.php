@@ -116,8 +116,11 @@ class as3i_Local_To_S3 extends as3i_Filter {
 	 * @return bool
 	 */
 	protected function url_needs_replacing( $url ) {
+		
 		if ( str_replace( $this->get_bare_upload_base_urls(), '', $url ) === $url ) {
+			
 			// Remote URL, no replacement needed
+			
 			return false;
 		}
 
@@ -131,9 +134,11 @@ class as3i_Local_To_S3 extends as3i_Filter {
 	 * @return array
 	 */
 	private function get_bare_upload_base_urls() {
+		
 		static $base_urls = array();
 
 		if ( empty( $base_urls ) ) {
+			
 			$domains = array();
 
 			// Original domain and path.
@@ -149,6 +154,7 @@ class as3i_Local_To_S3 extends as3i_Filter {
 			$curr_domain = as3i_Utils::parse_url( $base_url, PHP_URL_HOST );
 
 			if ( $curr_domain !== $orig_domain ) {
+				
 				$domains[] = $curr_domain;
 			}
 
@@ -157,11 +163,21 @@ class as3i_Local_To_S3 extends as3i_Filter {
 			 *
 			 * @param array $domains
 			 */
+			
 			$domains = apply_filters( 'as3i_local_domains', $domains );
-
+			
 			if ( ! empty( $domains ) ) {
-				foreach ( array_unique( $domains ) as $match_domain ) {
-					$base_urls[] = substr_replace( $base_url, $match_domain, 2, strlen( $curr_domain ) );
+				
+				$domains = array_unique( $domains );
+				
+				foreach( $domains as $match_domain ) {
+					
+					$domain = substr_replace( $base_url, $match_domain, 2, strlen( $curr_domain ) );
+					
+					if( !in_array($domain,$base_urls) ){
+						
+						$base_urls[] = $domain;
+					}
 				}
 			}
 		}
@@ -330,6 +346,7 @@ class as3i_Local_To_S3 extends as3i_Filter {
 	 * @return string
 	 */
 	protected function normalize_replace_value( $url ) {
+		
 		return $this->as3i->encode_filename_in_path( $url );
 	}
 

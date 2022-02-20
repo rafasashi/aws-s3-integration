@@ -131,8 +131,11 @@ abstract class as3i_Filter {
 	 * @return string
 	 */
 	public function filter_post( $content ) {
+		
 		if ( empty( $content ) ) {
+			
 			// Nothing to filter, continue
+			
 			return $content;
 		}
 
@@ -315,14 +318,18 @@ abstract class as3i_Filter {
 	 * @return array
 	 */
 	protected function get_urls_from_img_src( $content, &$to_cache ) {
+		
 		$url_pairs = array();
 
 		if ( ! is_string( $content ) ) {
+			
 			return $url_pairs;
 		}
 
 		if ( ! preg_match_all( '/<img [^>]+>/', $content, $matches ) || ! isset( $matches[0] ) ) {
+			
 			// No img tags found, return
+			
 			return $url_pairs;
 		}
 
@@ -330,20 +337,27 @@ abstract class as3i_Filter {
 		$attachment_ids = array();
 
 		foreach ( $matches as $image ) {
+			
 			if ( ! preg_match( '/wp-image-([0-9]+)/i', $image, $class_id ) || ! isset( $class_id[1] ) ) {
+				
 				// Can't determine ID from class, skip
+				
 				continue;
 			}
 
 			if ( ! preg_match( '/src=\\\?["\']+([^"\'\\\]+)/', $image, $src ) || ! isset( $src[1] ) ) {
+				
 				// Can't determine URL, skip
+				
 				continue;
 			}
 
 			$url = $src[1];
 
 			if ( ! $this->url_needs_replacing( $url ) ) {
+				
 				// URL already correct, skip
+				
 				continue;
 			}
 
@@ -402,7 +416,9 @@ abstract class as3i_Filter {
 			$url = preg_replace( '/[^a-zA-Z0-9]$/', '', $url );
 
 			if ( ! $this->url_needs_replacing( $url ) ) {
+				
 				// URL already correct, skip
+				
 				continue;
 			}
 
@@ -629,14 +645,18 @@ abstract class as3i_Filter {
 	 * @return string
 	 */
 	protected function replace_urls( $content, $url_pairs ) {
+		
 		if ( empty( $url_pairs ) ) {
 			// No URLs to replace return
 			return $content;
 		}
-
+		
 		foreach ( $url_pairs as $find => $replace ) {
+			
 			$replace = $this->normalize_replace_value( $replace );
+			
 			$content = str_replace( $find, $replace, $content );
+			
 			$content = $this->url_replaced( $find, $replace, $content );
 		}
 
@@ -653,6 +673,7 @@ abstract class as3i_Filter {
 	 * @return string
 	 */
 	protected function url_replaced( $find, $replace, $content ) {
+
 		return $content;
 	}
 
@@ -745,13 +766,18 @@ abstract class as3i_Filter {
 	 * @return array
 	 */
 	protected function get_option_cache() {
+		
 		if ( wp_using_ext_object_cache() ) {
+			
 			$cache = wp_cache_get( self::CACHE_KEY, self::OPTION_CACHE_GROUP );
-		} else {
+		} 
+		else {
+			
 			$cache = get_option( self::CACHE_KEY, array() );
 		}
 
 		if ( empty( $cache ) ) {
+			
 			$cache = array();
 		}
 

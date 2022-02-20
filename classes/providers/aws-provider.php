@@ -153,12 +153,16 @@ class AWS_Provider extends Provider {
 	 * @param \as3i_Plugin_Base $as3i
 	 */
 	public function __construct( \as3i_Plugin_Base $as3i ) {
+		
 		parent::__construct( $as3i );
 
 		$this->disable_csm();
 
-		// Autoloader.
-		require_once $as3i->get_plugin_sdks_dir_path() . '/autoload.php';
+		if( file_exists($as3i->get_plugin_sdks_dir_path() . '/autoload.php') ){
+
+			// Autoloader.
+			require_once $as3i->get_plugin_sdks_dir_path() . '/autoload.php';
+		}
 	}
 
 	/**
