@@ -627,7 +627,7 @@ class as3i_Plugin_Compatibility {
 
 		$client = $this->as3i->get_provider_client( $region, true );
 
-		if ( ! empty( $client ) && $client->register_stream_wrapper( $region ) ) {
+		if ( !empty($client) && $client->loaded === true && $client->register_stream_wrapper( $region ) ) {
 			self::$stream_wrappers[ $stored_region ] = $client;
 
 			return $client;

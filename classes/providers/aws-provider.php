@@ -11,7 +11,9 @@ use Aws\Sdk;
 use Recuweb\AWS_S3_Integration\Providers\Streams\AWS_S3_Stream_Wrapper;
 
 class AWS_Provider extends Provider {
-
+	
+	public $loaded = false;
+	
 	/**
 	 * @var Sdk
 	 */
@@ -162,6 +164,8 @@ class AWS_Provider extends Provider {
 
 			// Autoloader.
 			require_once $as3i->get_plugin_sdks_dir_path() . '/autoload.php';
+			
+			$this->loaded = true;
 		}
 	}
 
@@ -525,6 +529,7 @@ class AWS_Provider extends Provider {
 	 * @return bool
 	 */
 	public function register_stream_wrapper( $region ) {
+		
 		$protocol = $this->get_stream_wrapper_protocol( $region );
 
 		// Register the region specific S3 stream wrapper to be used by plugins
