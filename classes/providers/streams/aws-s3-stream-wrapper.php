@@ -18,7 +18,7 @@ class AWS_S3_Stream_Wrapper extends StreamWrapper {
 	 * @param string            $protocol Protocol to register as.
 	 * @param CacheInterface    $cache    Default cache for the protocol.
 	 */
-	public static function register( S3ClientInterface $client, $protocol = 's3', CacheInterface $cache = null ) {
+	public static function register( S3ClientInterface $client, $protocol = 's3', CacheInterface $cache = null, $v2Existence = false ) {
 		// Keep a shadow copy of the protocol for use with context options.
 		static::$wrapper = $protocol;
 

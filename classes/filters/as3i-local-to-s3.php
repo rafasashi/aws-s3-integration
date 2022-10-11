@@ -59,6 +59,7 @@ class as3i_Local_To_S3 extends as3i_Filter {
 	 * @param WP_Post $post
 	 */
 	public function filter_post_data( $post ) {
+		
 		global $pages;
 
 		$cache    = $this->get_post_cache( $post->ID );

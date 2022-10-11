@@ -174,8 +174,11 @@ if ( ! class_exists( 'as3i_Utils' ) ) {
 		 * @return array
 		 */
 		public static function get_attachment_file_paths( $attachment_id, $exists_locally = true, $meta = false, $include_backups = true ) {
+			
 			$file_path = get_attached_file( $attachment_id, true );
+			
 			$paths     = array(
+				
 				'original' => $file_path,
 			);
 
@@ -225,11 +228,13 @@ if ( ! class_exists( 'as3i_Utils' ) ) {
 			}
 
 			// Allow other processes to add files to be uploaded
+			
 			$paths = apply_filters( 'as3i_attachment_file_paths', $paths, $attachment_id, $meta );
-
+			
 			// Remove duplicates
+			
 			$paths = array_unique( $paths );
-
+			
 			// Remove paths that don't exist
 			if ( $exists_locally ) {
 				foreach ( $paths as $key => $path ) {

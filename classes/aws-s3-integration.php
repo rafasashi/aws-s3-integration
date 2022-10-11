@@ -1372,11 +1372,12 @@ class AWS_s3_Integration extends as3i_Plugin_Base {
 		}
 
 		$remove_local_files_setting = $this->get_setting( 'remove-local-file' );
-
+		
 		if ( $remove_local_files && $remove_local_files_setting ) {
+			
 			// Allow other functions to remove files after they have processed
 			$files_to_remove = apply_filters( 'as3i_upload_attachment_local_files_to_remove', $files_to_remove, $post_id, $file_path );
-
+			
 			// Remove duplicates
 			$files_to_remove = array_unique( $files_to_remove );
 

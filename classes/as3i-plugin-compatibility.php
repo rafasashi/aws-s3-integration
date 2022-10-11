@@ -160,10 +160,7 @@ class as3i_Plugin_Compatibility {
 		add_filter( 'as3i_get_attached_file_copy_back_to_local', '__return_true' );
 
 		// Monitor any files that are subsequently removed.
-		add_filter( 'as3i_upload_attachment_local_files_to_remove', array(
-			$this,
-			'monitor_local_files_to_remove',
-		), 10, 3 );
+		add_filter( 'as3i_upload_attachment_local_files_to_remove', array($this,'monitor_local_files_to_remove'), 10, 3 );
 
 		// Prevent subsequent attempts to copy back after upload and remove.
 		add_filter( 'as3i_get_attached_file_copy_back_to_local', array(
@@ -292,10 +289,15 @@ class as3i_Plugin_Compatibility {
 	 * @return bool|string
 	 */
 	function get_original_image_file( $post_id, $file_path ) {
+		
 		// remove original main image after edit
-		$meta          = get_post_meta( $post_id, '_wp_attachment_metadata', true );
+		
+		$meta = get_post_meta( $post_id, '_wp_attachment_metadata', true );
+		
 		$original_file = trailingslashit( dirname( $file_path ) ) . wp_basename( $meta['file'] );
+		
 		if ( file_exists( $original_file ) ) {
+			
 			return $original_file;
 		}
 
@@ -516,12 +518,15 @@ class as3i_Plugin_Compatibility {
 	 * @return array
 	 */
 	function customizer_crop_remove_original_image( $files, $post_id, $file_path ) {
+		
 		if ( false === $this->is_customizer_crop_action() ) {
+			
 			return $files;
 		}
 
 		// remove original main image after edit
 		if ( ( $original_file = $this->get_original_image_file( $_POST['id'], $file_path ) ) ) {
+			
 			$files[] = $original_file;
 		}
 
